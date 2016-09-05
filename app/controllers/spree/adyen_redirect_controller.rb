@@ -1,5 +1,5 @@
 module Spree
-  class AdyenRedirectController < StoreController
+  class AdyenRedirectController < AdyenController
     before_filter :restore_session
     before_filter :check_signature, only: :confirm
 
@@ -22,15 +22,15 @@ module Spree
     end
 
     private
+    def handle_failed_redirect source
+      flash.notice = Spree.t(:payment_processing_failed)
+      redirect_to checkout_state_path(@order.state)
+    end
 
     def confirm_order_incomplete
       source = Adyen::HppSource.new(source_params)
 
-      unless source.authorised?
-        flash.notice = Spree.t(:payment_processing_failed)
-        redirect_to checkout_state_path(@order.state)
-        return
-      end
+      return handle_failed_redirect(source) unless source.authorised?
 
       # payment is created in a 'checkout' state so that the payment method
       # can attempt to auth it. The payment of course is already auth'd and
@@ -81,7 +81,7 @@ module Spree
     end
 
     def check_signature
-      unless ::Adyen::Form.redirect_signature_check(params, @payment_method.shared_secret)
+      unless ::Adyen::HPP::Signature.verify(response_params, @payment_method.shared_secret)
         raise "Payment Method not found."
       end
     end
@@ -100,15 +100,23 @@ module Spree
     end
 
     def source_params
+      adyen_permitted_params
+    end
+
+    def response_params
+      adyen_permitted_params
+    end
+
+    def adyen_permitted_params
       params.permit(
         :authResult,
-        :pspReference,
         :merchantReference,
-        :skinCode,
+        :merchantReturnData,
         :merchantSig,
         :paymentMethod,
+        :pspReference,
         :shopperLocale,
-        :merchantReturnData)
+        :skinCode)
     end
 
     def order_number

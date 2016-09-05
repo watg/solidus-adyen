@@ -3,14 +3,14 @@ module Spree
     module Admin
       module RefundsController
         extend ActiveSupport::Concern
-        include Spree::Adyen::HppCheck
+        include Spree::Adyen::PaymentCheck
 
         included do
           before_filter :adyen_create, only: [:create]
         end
 
         def adyen_create
-          if hpp_payment?(@payment)
+          if hpp_payment?(@payment) || adyen_cc_payment?(@payment)
             # this sucks, but the attributes are not assigned until after
             # callbacks if we're here we aren't going down the normal flow
             # anyways
@@ -21,7 +21,7 @@ module Spree
             return if @refund.invalid?
 
             @payment.refunds.reset # we don't want to save the refund
-            @payment.credit!(cents, currency: currency)
+            @payment.credit!(cents, @payment.gateway_options)
 
             respond
           end

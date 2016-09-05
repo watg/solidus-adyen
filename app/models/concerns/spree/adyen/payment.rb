@@ -6,11 +6,32 @@ module Spree
   module Adyen
     module Payment
       extend ActiveSupport::Concern
-      include Spree::Adyen::HppCheck
+      include Spree::Adyen::PaymentCheck
+
+      included do
+        after_create :authorize_adyen_credit_card, if: :authorizable_cc_payment?
+
+        private
+
+        def authorize_adyen_credit_card
+          payment_method.authorize_new_payment(self)
+        end
+      end
+
+      # Spree::Payment#process will call purchase! for payment methods with
+      # auto_capture enabled. Since we authorize credit cards in the payment
+      # step already, we just need to capture the payment here.
+      def purchase!
+        if adyen_cc_payment?
+          capture!
+        else
+          super
+        end
+      end
 
       # capture! :: bool | error
       def capture!
-        if hpp_payment?
+        if hpp_payment? || adyen_cc_payment?
           amount = money.money.cents
           process do
             payment_method.send(
@@ -33,7 +54,7 @@ module Spree
       # of getting around the fact that Payment methods cannot specifiy these
       # methods.
       def credit! amount, options
-        if hpp_payment?
+        if hpp_payment? || adyen_cc_payment?
           process { payment_method.credit(amount, response_code, options) }
         else
           fail NotImplementedError, "Spree::Payment does not implement credit!"
@@ -45,8 +66,8 @@ module Spree
       # Borrowed from handle_void_response, this has been modified so that it
       # won't actually void the payment _yet_.
       def cancel!
-        if hpp_payment?
-          if source.requires_manual_refund?
+        if hpp_payment? || adyen_cc_payment?
+          if source.respond_to?(:requires_manual_refund?) && source.requires_manual_refund?
             log_manual_refund
           else
             process { payment_method.cancel response_code }
@@ -88,6 +109,12 @@ module Spree
           # want them to just return to the previous state
           gateway_error(response)
         end
+      end
+
+      # Solidus creates a $0 default payment during checkout using a previously
+      # used credit card, which we should not create an authorization for.
+      def authorizable_cc_payment?
+        adyen_cc_payment? && amount != 0
       end
     end
   end

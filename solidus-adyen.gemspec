@@ -18,14 +18,12 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "adyen", "~> 1.4"
-  spec.add_runtime_dependency "solidus_core", "~> 1.1"
+  spec.add_runtime_dependency "adyen", "~> 2.2.0"
+  spec.add_runtime_dependency "solidus_core"
   spec.add_runtime_dependency "bourbon"
 
   spec.add_development_dependency "sass-rails"
   spec.add_development_dependency "coffee-rails"
-
-  spec.add_development_dependency "pg"
 
   spec.add_development_dependency "rspec-rails", "~> 3.3"
   spec.add_development_dependency "rspec-activemodel-mocks"
