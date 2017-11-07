@@ -42,14 +42,14 @@ shared_context "complete credit card payment" do
   end
 end
 
-describe "Entering Credit Card Data" do
+describe "Entering Credit Card Data", js: true, truncation: true do
   include_context 'checkout setup'
 
   it "shows the adyen gateway as an option" do
     expect(page).to have_content("Adyen Credit Card")
   end
 
-  context "when the adyen gateway is selected", js: true, truncation: true do
+  context "when the adyen gateway is selected" do
     context "and the form is not filled out" do
       it "displays an alert on submit and validates the form" do
         choose('Adyen Credit Card')
@@ -61,7 +61,7 @@ describe "Entering Credit Card Data" do
     end
 
     context "and the form is filled out formally correctly, but with an invalid card" do
-      it "provides a meaningful error message" do
+      it "returns the user to payment after confirm with an error message" do
         VCR.use_cassette "Credit Card not accepted", record: :new_episodes do
           choose('Adyen Credit Card')
           fill_in("card_number", with: "4111111111111111")
@@ -69,7 +69,8 @@ describe "Entering Credit Card Data" do
           fill_in("expiry_year", with: "2019")
           fill_in("verification_value", with: "747")
           click_button('Save and Continue')
-          expect(page).to have_content("The credit card data you have entered is invalid.")
+          click_button("Place Order")
+          expect(page).to have_content("905 Payment details are not supported")
         end
       end
     end
@@ -112,10 +113,29 @@ describe "Entering Credit Card Data" do
           end
         end
       end
+
+      context "with a card that supports 3DS" do
+        it "redirects the user to the 3DS page and completes the purchase" do
+          VCR.use_cassette "3DS Credit Card Purchase", record: :new_episodes do
+            choose("Adyen Credit Card")
+            fill_in("card_number", with: "4212345678901237")
+            fill_in("expiry_month", with: "08")
+            fill_in("expiry_year", with: "2018")
+            fill_in("verification_value", with: "737")
+            click_button('Save and Continue')
+            click_button('Place Order')
+            expect(page).to have_content("Authenticate a transaction")
+            fill_in("username", with: "user")
+            fill_in("password", with: "password")
+            click_button("Submit")
+            expect(page).to have_content("Your order has been processed successfully")
+          end
+        end
+      end
     end
   end
 
-  context "when the adyen gateway is not selected", js: true, truncation: true do
+  context "when the adyen gateway is not selected" do
     context "and the form is not filled out" do
       it "submits the data from the other gateway" do
         choose('Credit Card')

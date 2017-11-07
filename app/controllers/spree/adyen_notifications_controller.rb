@@ -1,8 +1,8 @@
 module Spree
   class AdyenNotificationsController < AdyenController
-    skip_before_filter :verify_authenticity_token
+    skip_before_action :verify_authenticity_token
 
-    before_filter :authenticate
+    before_action :authenticate
 
     def notify
       if notification_exists?(params)
@@ -11,8 +11,11 @@ module Spree
         notification = AdyenNotification.build(params)
         notification.save!
 
-        # prevent alteration to associated payment while we're handling the action
-        Spree::Adyen::NotificationProcessor.new(notification).process!
+        # Only process the notification if we have an associated order.
+        # We might not in the case of test notifications, reports, etc.
+        notification.order.try!(:with_lock) do
+          Spree::Adyen::NotificationProcessor.new(notification).process!
+        end
         accept
       end
     end
@@ -28,7 +31,7 @@ module Spree
 
     private
     def accept
-      render text: "[accepted]"
+      render plain: "[accepted]"
     end
 
     def notification_exists? params

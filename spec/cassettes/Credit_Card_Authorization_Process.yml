@@ -2,233 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: https://<ADYEN_API_USERNAME>:<ADYEN_API_PASSWORD>@pal-test.adyen.com/pal/servlet/soap/Payment
-    body:
-      encoding: UTF-8
-      string: |-
-        <?xml version="1.0"?>
-                <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                  <soap:Body>
-                            <payment:authorise xmlns:payment="http://payment.services.adyen.com" xmlns:recurring="http://recurring.services.adyen.com" xmlns:common="http://common.services.adyen.com">
-                  <payment:paymentRequest>
-                    <payment:merchantAccount><ADYEN_MERCHANT_ACCOUNT></payment:merchantAccount>
-                    <payment:reference>1</payment:reference>
-                            <additionalAmount xmlns="http://payment.services.adyen.com" xsi:nil="true" />
-                <additionalData xmlns="http://payment.services.adyen.com">
-                  <entry>
-                    <key xsi:type="xsd:string">card.encrypted.json</key>
-                    <value xsi:type="xsd:string">adyenjs_0_1_17$1Gx0g+iKAQmk7mE2aeCN9gFhQal9FFnsd/dnO9ws7ZwpquZfB1OFI8dmm6ROorQYSA9SvSSPBXKT49w3XYQWmSJbuNSks+7/gxplQjzzQzZBLfjpvkClukzrJZNfUoa6OTekj7Sc0qIlOUX9L+ynet8Aeo9g5NeIilaujMZluwB4H9QJBG2AW2O8+mi/2JIi2QfsnteJuTZMyhpcKxS2byWX/kIdvuDw9h6HTfrtouIoB3uPuWwSLeUJcBWTIpjK59Pg/Mr6ECaj8yr5aiDIDeAL7FpuGFv816Oe+83HDUDzJ7NLZBFl979u1//Cl+ko6pWyWAd62kOqYmTwCjZo7Q==$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</value>
-                  </entry>
-                </additionalData>
-                <payment:recurring>
-                  <payment:contract>RECURRING,ONECLICK</payment:contract>
-                </payment:recurring>
-                <payment:amount>
-                  <common:currency>USD</common:currency>
-                  <common:value>0</common:value>
-                </payment:amount>
-                <payment:shopperReference>1</payment:shopperReference>
-                <payment:shopperEmail>spree@example.com</payment:shopperEmail>
-                <payment:shopperIP></payment:shopperIP>
-                <payment:shopperStatement>R285069127</payment:shopperStatement>
-                  </payment:paymentRequest>
-                </payment:authorise>
-
-                  </soap:Body>
-                </soap:Envelope>
-    headers:
-      Accept:
-      - text/xml
-      Content-Type:
-      - text/xml; charset=utf-8
-      Soapaction:
-      - authorise
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Mon, 02 May 2016 15:24:21 GMT
-      Server:
-      - Apache
-      Set-Cookie:
-      - JSESSIONID=C3D4D774BF34B8467855EF99A586B253.test103e; Path=/pal/; Secure;
-        HttpOnly
-      Last-Modified:
-      - Mon, 02 May 2016 15:24:21 GMT
-      Transfer-Encoding:
-      - chunked
-      Content-Type:
-      - text/xml;charset=UTF-8
-    body:
-      encoding: UTF-8
-      string: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><soap:Body><ns1:authoriseResponse
-        xmlns:ns1="http://payment.services.adyen.com"><ns1:paymentResult><additionalData
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><authCode xmlns="http://payment.services.adyen.com">3603</authCode><dccAmount
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><dccSignature xmlns="http://payment.services.adyen.com"
-        xsi:nil="true" /><fraudResult xmlns="http://payment.services.adyen.com" xsi:nil="true"
-        /><issuerUrl xmlns="http://payment.services.adyen.com" xsi:nil="true" /><md
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><paRequest xmlns="http://payment.services.adyen.com"
-        xsi:nil="true" /><pspReference xmlns="http://payment.services.adyen.com">8814622026610346</pspReference><refusalReason
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><resultCode xmlns="http://payment.services.adyen.com">Authorised</resultCode></ns1:paymentResult></ns1:authoriseResponse></soap:Body></soap:Envelope>
-    http_version: 
-  recorded_at: Mon, 02 May 2016 15:24:21 GMT
-- request:
-    method: post
-    uri: https://<ADYEN_API_USERNAME>:<ADYEN_API_PASSWORD>@pal-test.adyen.com/pal/servlet/soap/Recurring
-    body:
-      encoding: UTF-8
-      string: |-
-        <?xml version="1.0"?>
-                <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                  <soap:Body>
-                        <recurring:listRecurringDetails xmlns:payment="http://payment.services.adyen.com" xmlns:recurring="http://recurring.services.adyen.com">
-              <recurring:request>
-                <recurring:recurring>
-                  <payment:contract>RECURRING</payment:contract>
-                </recurring:recurring>
-                <recurring:merchantAccount><ADYEN_MERCHANT_ACCOUNT></recurring:merchantAccount>
-                <recurring:shopperReference>1</recurring:shopperReference>
-              </recurring:request>
-            </recurring:listRecurringDetails>
-
-                  </soap:Body>
-                </soap:Envelope>
-    headers:
-      Accept:
-      - text/xml
-      Content-Type:
-      - text/xml; charset=utf-8
-      Soapaction:
-      - listRecurringDetails
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Mon, 02 May 2016 15:24:21 GMT
-      Server:
-      - Apache
-      Set-Cookie:
-      - JSESSIONID=F41BB7222421E85D15BDEAD38EE78C89.test104e; Path=/pal/; Secure;
-        HttpOnly
-      Pspreference:
-      - '7914622026617821'
-      Content-Length:
-      - '1728'
-      Content-Type:
-      - text/xml;charset=utf-8
-    body:
-      encoding: UTF-8
-      string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><soap:Body><recurring:listRecurringDetailsResponse
-        xmlns:recurring="http://recurring.services.adyen.com"><recurring:result><creationDate
-        xmlns="http://recurring.services.adyen.com">2016-04-28T14:18:41+02:00</creationDate><details
-        xmlns="http://recurring.services.adyen.com"><RecurringDetail><bank xsi:nil="true"
-        /><card><billingAddress xmlns="http://payment.services.adyen.com" xsi:nil="true"
-        /><brand xmlns="http://payment.services.adyen.com" xsi:nil="true" /><cvc xmlns="http://payment.services.adyen.com"
-        xsi:nil="true" /><expiryMonth xmlns="http://payment.services.adyen.com">6</expiryMonth><expiryYear
-        xmlns="http://payment.services.adyen.com">2016</expiryYear><holderName xmlns="http://payment.services.adyen.com">John
-        Doe</holderName><issueNumber xmlns="http://payment.services.adyen.com" xsi:nil="true"
-        /><number xmlns="http://payment.services.adyen.com">1111</number><startMonth
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><startYear xmlns="http://payment.services.adyen.com"
-        xsi:nil="true" /></card><creationDate>2016-04-28T14:18:41+02:00</creationDate><elv
-        xsi:nil="true" /><name xsi:nil="true" /><recurringDetailReference>8414618459219534</recurringDetailReference><variant>visa</variant></RecurringDetail></details><lastKnownShopperEmail
-        xmlns="http://recurring.services.adyen.com">spree@example.com</lastKnownShopperEmail><shopperReference
-        xmlns="http://recurring.services.adyen.com">1</shopperReference></recurring:result></recurring:listRecurringDetailsResponse></soap:Body></soap:Envelope>
-    http_version: 
-  recorded_at: Mon, 02 May 2016 15:24:21 GMT
-- request:
-    method: post
-    uri: https://<ADYEN_API_USERNAME>:<ADYEN_API_PASSWORD>@pal-test.adyen.com/pal/servlet/soap/Payment
-    body:
-      encoding: UTF-8
-      string: |-
-        <?xml version="1.0"?>
-                <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                  <soap:Body>
-                            <payment:authorise xmlns:payment="http://payment.services.adyen.com" xmlns:recurring="http://recurring.services.adyen.com" xmlns:common="http://common.services.adyen.com">
-                  <payment:paymentRequest>
-                    <payment:merchantAccount><ADYEN_MERCHANT_ACCOUNT></payment:merchantAccount>
-                    <payment:reference>R285069127-MC9VJLCN</payment:reference>
-                            <payment:recurring>
-                  <payment:contract>RECURRING</payment:contract>
-                </payment:recurring>
-                <payment:selectedRecurringDetailReference>8414618459219534</payment:selectedRecurringDetailReference>
-                <payment:shopperInteraction>ContAuth</payment:shopperInteraction>
-                <payment:amount>
-                  <common:currency>USD</common:currency>
-                  <common:value>2000</common:value>
-                </payment:amount>
-                <payment:shopperReference>1</payment:shopperReference>
-                <payment:shopperEmail>spree@example.com</payment:shopperEmail>
-                <payment:shopperIP></payment:shopperIP>
-                <payment:shopperStatement>R285069127-MC9VJLCN</payment:shopperStatement>
-                  </payment:paymentRequest>
-                </payment:authorise>
-
-                  </soap:Body>
-                </soap:Envelope>
-    headers:
-      Accept:
-      - text/xml
-      Content-Type:
-      - text/xml; charset=utf-8
-      Soapaction:
-      - authorise
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Mon, 02 May 2016 15:24:22 GMT
-      Server:
-      - Apache
-      Set-Cookie:
-      - JSESSIONID=EEBFF844F4259A7F998C86EBD725AB71.test104e; Path=/pal/; Secure;
-        HttpOnly
-      Last-Modified:
-      - Mon, 02 May 2016 15:24:22 GMT
-      Transfer-Encoding:
-      - chunked
-      Content-Type:
-      - text/xml;charset=UTF-8
-    body:
-      encoding: UTF-8
-      string: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><soap:Body><ns1:authoriseResponse
-        xmlns:ns1="http://payment.services.adyen.com"><ns1:paymentResult><additionalData
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><authCode xmlns="http://payment.services.adyen.com">83170</authCode><dccAmount
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><dccSignature xmlns="http://payment.services.adyen.com"
-        xsi:nil="true" /><fraudResult xmlns="http://payment.services.adyen.com" xsi:nil="true"
-        /><issuerUrl xmlns="http://payment.services.adyen.com" xsi:nil="true" /><md
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><paRequest xmlns="http://payment.services.adyen.com"
-        xsi:nil="true" /><pspReference xmlns="http://payment.services.adyen.com">7914622026627838</pspReference><refusalReason
-        xmlns="http://payment.services.adyen.com" xsi:nil="true" /><resultCode xmlns="http://payment.services.adyen.com">Authorised</resultCode></ns1:paymentResult></ns1:authoriseResponse></soap:Body></soap:Envelope>
-    http_version: 
-  recorded_at: Mon, 02 May 2016 15:24:22 GMT
-- request:
-    method: post
     uri: https://<ADYEN_API_USERNAME>:<ADYEN_API_PASSWORD>@pal-test.adyen.com/pal/adapter/httppost
     body:
       encoding: US-ASCII
-      string: paymentRequest.reference=R038468844&paymentRequest.merchantAccount=<ADYEN_MERCHANT_ACCOUNT>&paymentRequest.amount.value=2000&paymentRequest.amount.currency=USD&paymentRequest.billingAddress.street=10+Lovely+Street&paymentRequest.billingAddress.houseNumberOrName=NA&paymentRequest.billingAddress.city=Herndon&paymentRequest.billingAddress.postalCode=35005&paymentRequest.billingAddress.stateOrProvince=AL&paymentRequest.billingAddress.country=US&paymentRequest.additionalData.card.encrypted.json=adyenjs_0_1_18%24X4MGTDe1E%2BnqLcNhPTY8XYkDmWUOaiODBCn%2BxBsgPjC%2BgIQMLSCczd2q%2B84lw7MyN5BVknKhNDM0DgfoweV44zSJ9JJsJ5uNnGtSl5O6WvE13ivLdOhVEZozXiGKi1BXAX%2FFp7Jqj%2BlSiEfcRMea8qEr0iHqgUxOygeNlTwlF1cMPTYMkzCkEiJgFF5vXmml4yeyKSHIShTXTD9ODgA6qiNnRFYgY3Vsop1sP3sDTFG6O2PZkCkwS1vTVGs5FnjsmwfnU6atB3brxqclXn4RMzXH5d3Cajy9tVvEpbTeUzT%2FE5bX5U0N3NZ44MolcaomP8tlJ73qObP8hs7tij498g%3D%3D%24OnrzqA7eB8GmoTfbgGaczV9kvkquiwDGmP9V0X6XCA3C9LZCeeRRmKKbsNMSuV6bEPrFliAWVdHYayRUMaB0%2FtjGTnamrepQxp7Kg3mOEFDUYJLlPCuNVJpa5O83OLAvgrxaXvtNPmQx0qvo9WIi7ZU%2F5uU%2F2ktQum%2F3Gi6vGmjvl99TzXvUFL3tyoji8mwtmbY8M48Me7ceUEi%2BJT9RH0XNgmLUH70h0XTxRntdlMZwKZIkbYGae%2FDR%2BSq1fM2CCf9J4%2FK7hGHp6pAlAs2njJZEMeBEogTiFi0RV5HS8WtJxiJp7%2Fx8R67gQ35S4Hmu%2FzPY0SxMKPk%2FfVJ6TZlk7pvB%2FePvp9ml%2FBL0wQhMlYVTJZ1HRod6Qkt3nAPsakchBbx1aMJ%2Fa%2BZ0zfdlhBQ6dhCAM5DSqv4gibmWliCkzdfzECD0skUf%2FQQ4JW0Paxs73uYqCfJuSxVIdeMUzp0WPNPIvPeAn79cPjjjaGhxmyZuZGWJN9PDFaCfKu3tLITRONf1dE%2BZb%2BuVf6imQz5PYUPm1dWHWz2c7A1XkdbJi6zPHa6vTM2Qq26R7oEJyDF2bKFuiR%2FEBxKwg32gjTl%2FYv138e2iCxCs5I1z%2FBAgfQsG1U0XuElot8QbuLNGh9GT9aNwdlXL86sdQS8OdBj%2FLMZAPyitVJUnn1iNCuo9DWsjlidAKC2aK3IOEV5tzGVKF2tm9Y%2Bz1EtfYpdIOAOL0zlv85RmXgfWT0xOmZ3f%2BPe6102yadiiUYUuZGDFQTaR3ggJBHHNo%2Fsqfy4xXVY2C2NZdo0Q6UINTQSpghS9181pJhSm4gP03%2Bmjl%2BB4VDVL7ZVoHuLfVBmHepr6Xeyag1p%2BJfn2ChyWRuYDAx6lw6HLR0r4ptdZJOLgQh%2B%2BIoPoCfNLhMQ3k%2B%2FxM2M1IltrCn0h0dgXt3E63PfzAn%2BoT0NcxmUis%2BvsxD5IL6vPpEqZuIuhw%2Bo4fW%2B6Numa5mWytmpBv9X2946hlhwhuKyuF%2B6%2BETpbm4y3%2BmMuoQZHr2HmzCtRhX6o1UQGvbgR4ewh8T9hxPLJ7rpm7DwnpjP8I7lc62MZJfd8lpkOUX4sTh4O3%2FLz76VX2%2Bsc9z%2Bc2xxr9FCQ3SIkdesE2mewHgiR0rgMn3JrqSf57z6W1v0aanqXrwsuLLV50uAiDug3rFP%2BefjTb31NzEydyoci%2BUrLhNSUSg7E1fKN8YED0xNJ6nuG%2BBHqCjPQu0chnZ%2B10aDMXKMh65RqS9z9oqR%2F85yjXYufYl5tdCUpRz2kB%2BTbfujfASe3ldWCTbq7iHNp75X0hewmI3ySbIeHT3zOtLpwr7SCjZ9CR35c%2FgUddCg2AR55eyf6QolgC7Fvr408Okl%2Fd1v3RRLHUftha11a4gH%2FeIX64EiBluyg4Dlxp3k6ok4dngSiNAF8C%2BnEdJO3tOxiSkghnKcPqLFIIOuZ%2BAqzBnQ0W8aWBRK0AwUm7XD%2FT0wrleDoWR9ql9bn9y0ELPdPPky9qg51t9u6fNQ%2FcZOlECEKeurjMJwqKzqZgSgj%2FaPw2jAH6OaQSiox708KxAe%2Frw7cij9PGgxHN7BRwFnFaqZIkQF7DEet9MV7C0Hb%2FE11bZOTF2beWiTcOufcA%2B7Y13OO8ISipIW6QFRI0fPXSj42ALhAGACfql%2FfB1JbKy7Kg%2By30SvGXK%2F9PQqGoqzxYhbiOSApIZ6FnEyxajf6fJT9KBgTlE%2Bncv3ZHjrQ3P5RNjsD%2FJ6fFsfGHc79aYBogoD%2F785ECQzFR%2BHBXywWR4h995Bs4ZJcll3i0Kndwvk0nqUW9O%2FHnIZ984o6i176%2BxNhjTM12bOfi%2FgjJPoWLcTclIRftnMH%2Bj2YymBeB6R97oqRSlXCHn5Lxi0e5sk9odYnHLwqQcW15zSrgk5pdWB9PkbefjovPJYvSuBa3erUKQpPEU0Uzlr9LalwOzCjodhzpLC9qWvUiGO4IDWQvMRbXjh0yiE%2BzgC0VDx33bWCUMTCPWlXVmtwhBPF5sKKkjkOayb3hLlnEdbl%2FBbfHpO2i4KKX9Irzp7pSqHqnXCN7ZGmT7S%2FGEOrPIT2n495orefw4oPwX%2B%2BcsHC4WXAT9vph2g5Vtt%2FwDRrNRqmB1vhqVId7UpfU7L9Pp88HWBwIhZNVkn9bOpEXIEOHcb6ivTw3Jd%2Fw%2FEweVZyrlgEWPxQ%2BB0yUIpPZrtAhy4RM5OOzEdAzr1vYNE1KcBaD1gvovR4lVttt7JP%2F2EA9f18ofzlyM2wrHuVWeORTzfT9f%2BlYv4qvVfAn0zsD1EWfRtqSjYyEW2gsGXD8c4OAHWZhlG%2BaqNOLJX%2FHz%2B4%2BmdXzP0FdYy90V3eemXnJlX7SSsalgGAA%2FsCHwBWaPBUmC1E9Aem0TV6BXOiE7DGs2SKAFXOkEvV3I6IayId%2FkKQ%2F4IfDiiimXnBo8HiabE52XPJq%2F1Jg4j1LYTHCqSfboUoA%2FaPjrlWNS5CHjs3vVnVf0uogroOvM3U6nA4k5RHj%2BWOAucOIRKJ%2B3NIyotyq%2BppQtRDMPq%2Be1lstoOD8saOM62ngHErPm0AwTurtiXk2daFgv2%2BD9yd5oQTZdyJwA5EwXh6iGe4ff4n6KLduK8xBh9d9DdiCaUOjBmU5ueob52rDysWC%2FuKbp85dnSpDyGfxAJbRxDDl4Lr771skbSnDV%2Bd1A0YR%2FN%2FGi0EoILAg04dHglsusj8sz687y0%3D&paymentRequest.shopperIP=&paymentRequest.shopperEmail=spree%40example.com&paymentRequest.shopperReference=1&paymentRequest.recurring.contract=RECURRING&action=Payment.authorise
+      string: paymentRequest.reference=R934280416&paymentRequest.merchantAccount=<ADYEN_MERCHANT_ACCOUNT>&paymentRequest.amount.value=2000&paymentRequest.amount.currency=USD&paymentRequest.shopperIP=&paymentRequest.shopperEmail=spree%40example.com&paymentRequest.shopperReference=1&paymentRequest.billingAddress.street=10+Lovely+Street&paymentRequest.billingAddress.houseNumberOrName=NA&paymentRequest.billingAddress.city=Herndon&paymentRequest.billingAddress.postalCode=93778&paymentRequest.billingAddress.stateOrProvince=AL&paymentRequest.billingAddress.country=US&paymentRequest.additionalData.card.encrypted.json=adyenjs_0_1_18%24RNsRcn%2FSaLncq%2BpK1HwcXtz5ieBYjK78KhLQKbMS3j9fvljJZGXEysJd9ZtgeZJhchrYPzwaAr56i0SLAsBbct5rq2Qeb%2FzgL62BeR9wR3nVn64PwVAzy4sxODLX0uSMNqV2wGq2WIXPkwrXQNIzeUvkxYBR%2B91TCKGx0hv2BgR0csDuCNDxLG8Yko3z5tkbpPn57BSINem2vvCLKo8jiPj12dC4%2FtggddB%2FvwRUk%2BGepGXhROFj9Dvv6m3jThZPTIh8NrDpKQAdean1Fcq2VRSgi22XBQCgpmKatGlEJLixGWkiS38Om%2FY%2FsqCln7zxne%2BZ5wtc5orxEDIX1hd5kA%3D%3D%24Wrr34SYH1XnngrbarKgMR4mfECAITB0NbPQi1shOZVbZTewSeziocNehVVCEuV9dY%2BmOrN1BVmAoLv7XhNzH8wVMqOrAZXWJQ0A8vzG6vGoG5juX%2BWvky%2BjLgwevZZCN80JavMR2taPObpjzv0rvwbKyKkHB8iFV8WXrsHeynLpzUKGwKaFjbGqNc0VOePybRapK9rD2hxziBaOQh8LZC4lrwNXkQtXpycFq9%2FVdamKc%2FnhnrT1A2RP2zX4%2B%2BvcxBN4e8GJ%2FTt6MOcYHUt6oQm5S25xtsquqmMVUPcKQFgwF%2FmI%2FE8jSgbbYKR2iLvvEGdihCAkDOO3dqESwT1T6%2F5fYJ0VbamNwvV%2BpTnxf4RX3yqgoL7rbx8MjPiMKWtNJM7BO4PaSzfia0QyGIBBOkVdEE1HsYfuRFl%2FHe7zkr1%2B%2Fcy0E9X7AvPHgrS54%2FDbHNXMfF1NKY0NR16b3dJjEd9mmRyHn5S%2F9ULqvN71IT2XX%2Bp9PAuLQAOBHLz4uJL8YzFXljDt441HEAGckPVV1rxA7JR79xsCLHde8e4%2Fdi%2Fv1%2BHC1Z3uC13amoSl3ASEQxtUeIXYgiJHIacbOcZOJzYzRXvbOVLypeHypgupWnC2N6K6b%2BKtWt7%2FPCCG20bAExqL1cNRUCanpsTXsbRnSBcYivJmeYa6QqFL6KEutCUegtyCK7eqQX2hd7rAMtPU2CtIg9RzkqM7zRN8YSrmObNyJIeC01ik2USHZofn%2BzdKrDhz1iM9weK6tEYgka3Spxb1yx%2Fn%2F6D9Yq9KA0lTFvE2lW%2Bv%2FPempr0JF7N0clJZvTr1rzyz4rPOAFRevwECTguPhvwsyaacOfFpzhb5fVt6wsmUT52MvOlgnNhmkCOV3e%2Bh8rgx3EL5sJ%2Ft9xKzJcHxNMEXjAouIUTY9MjScUyUzQBxNW0LSfCu3aSkmADB25WtSaIe1gmt%2Bk%2Bh2GY5%2BTi6137P5AJ0nYOp7mUgTZUIzkz%2B4VQ7caKP5qU1g%2F1H6hqbxNZw3B8vlW6a99Dynmms0GubkmX6GEjcL67vbCmJ43nLXmfY%2BSW83WyLHQJzxHtXlLtnbWhfWlXgXbT9oK9TzR9Ful8bsDi%2FaEYr967rjKQ%2BzhSeAoRfLIIgo8nBs0RvUlm0WMDSh9hFFDi%2FaGSpst0fpoBnh3RHubVHf%2FE8JuvTXOSRt2hLERYAWW9YrJQUZKFMn0tnHTKjwvgr0kpa58ZU5aAam09uwo6F52ymkXItg77g%2Byd4QKR0isiatQyM9UdUv8c3H%2BmmN%2BuBLICdUAbm2CSJ7nUchRUrebplZDnIHjc0%2BkzTJcshyLoRnVU04gIrtIHxhZbmjyhlAdrggNF2F8NE9m3YgZS77A7P4dv5aKGbceaMycpuQ7CZ2i1xr2iFBAXa%2FdepIwv72vKbfvt9hUs0vvL%2F7Kd7R9FlpvyPt5kxroYE2LdsH%2Fgf2Y%2BClp90E2OQegFsPwcLogvP4dtSKhbfVsvvueZJNNVCXIyODndcwUyn7ytv8oLKzAgP8uZCef0ITUAIXhb0DIibgKIOH0FpswnO%2Ft2pxd8EeDWCkDxTDfTImauiXxNToTKId9hyEJJdQzXI47E7szv0b0JTJAF4dD%2F2YXcAQRqDwBYisGY5iUr%2BjK%2BG7w1iOiZ1lGHayfjrbFWBJdwG5WzSoZ0AqfOXx4Fft30ciy7WzzZeHFUbrLet26mtntvJ47jX9Ae%2F2EpbnyP70HBFQQ44%2BtuQqk9Q0ShTERe6JwB%2Fmc90Er1VGAPCHTFvvYLSdEEcspJ3%2Fgh%2BGrIWP5OGKQgu%2FMd8mn4Ak51YbJ4Nd%2BVptfFECwvrwAjCsBL4bKA57BP0WNbCdAZQYWTYUVK9Q8%2FjYVMS63GmbpBJ6z7L1qsZ1C6TaNJfn6rcr%2FJ4IV1AN6%2FJiNOT38ETwnwxSmQMBYOLVbU2p3PWJQqFFzM6YzZPWUb0SoJvGe95rOuMf9ijMetPx7HZqCYR9naiZFmft%2B5vhKKPASvt1MXVXvE%2F7UVAWl1HY5sG16cRBR75aCj9j0wYCcadU3HJRPPIIFxwAXHplJkSYiSSCok8KCPETxBlYid7akRIZfHF5tIZyhqhFYelOvIvwSc3PGZn5UR991xXPu%2B96QuMI4EpThUyjBBjPOam1WLyMsiHpnL80PGEP2hM1zUVEZuzGnN3WbSwR%2FIe1jBr41Uu0fvbA4VF6%2FzfOqLAzVr817iyzFPoeeB1yWbmrkrKHtRFUhk9go5X%2BahBz6tXsFNx1qu5nnsBaARedzG8pw61SfXkUrxMFuDQ5M%2F7QhFQnZ1r4Kk7t6IdviBrARbaZquC4dmdodNPwNVXO1xEGMaX2o9HxkDaqV8FjTE5KB%2FKYMGQbw5kKOtKxxyMAqveE&paymentRequest.recurring.contract=RECURRING&action=Payment.authorise
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -244,20 +21,20 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 16 Aug 2016 23:31:54 GMT
+      - Thu, 10 Aug 2017 23:44:28 GMT
       Server:
       - Apache
       Set-Cookie:
-      - JSESSIONID=3BB552EACEBDD3F04DD3E6E6CF6AB82D.test4e; Path=/pal/; Secure; HttpOnly
+      - JSESSIONID=E42DBFAE45F95DE90137E3B8EEEF4094.test103e; Path=/pal; Secure; HttpOnly
       Content-Length:
       - '108'
       Content-Type:
-      - text/plain; charset=UTF-8
+      - application/x-www-form-urlencoded
     body:
       encoding: UTF-8
-      string: paymentResult.resultCode=Authorised&paymentResult.pspReference=8614713903144798&paymentResult.authCode=11028
+      string: paymentResult.resultCode=Authorised&paymentResult.pspReference=8815024086684148&paymentResult.authCode=94633
     http_version: 
-  recorded_at: Tue, 16 Aug 2016 23:31:55 GMT
+  recorded_at: Thu, 10 Aug 2017 23:44:28 GMT
 - request:
     method: post
     uri: https://<ADYEN_API_USERNAME>:<ADYEN_API_PASSWORD>@pal-test.adyen.com/pal/adapter/httppost
@@ -279,19 +56,18 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 16 Aug 2016 23:31:56 GMT
+      - Thu, 10 Aug 2017 23:44:29 GMT
       Server:
       - Apache
       Set-Cookie:
-      - JSESSIONID=8FA1E9591CAA6A7226AE84AA03428DCC.test104e; Path=/pal/; Secure;
-        HttpOnly
+      - JSESSIONID=09951CAC13CB7FC09DC2964FEE0946F3.test3e; Path=/pal; Secure; HttpOnly
       Content-Length:
-      - '1712'
+      - '2427'
       Content-Type:
-      - text/plain; charset=UTF-8
+      - application/x-www-form-urlencoded
     body:
       encoding: UTF-8
-      string: recurringDetailsResult.details.0.card.billingAddress.stateOrProvince=AL&recurringDetailsResult.details.0.variant=discover&recurringDetailsResult.details.0.card.billingAddress.houseNumberOrName=NA&recurringDetailsResult.details.0.card.holderName=John+Doe&recurringDetailsResult.details.0.aliasType=Default&recurringDetailsResult.details.0.firstPspReference=7914713873061724&recurringDetailsResult.details.0.alias=M512442788467272&recurringDetailsResult.details.0.card.expiryMonth=8&recurringDetailsResult.details.0.billingAddress.stateOrProvince=AL&recurringDetailsResult.details.0.billingAddress.street=10+Lovely+Street&recurringDetailsResult.details.0.card.billingAddress.postalCode=35005&recurringDetailsResult.details.0.card.number=6611&recurringDetailsResult.details.0.billingAddress.country=US&recurringDetailsResult.details.0.billingAddress.houseNumberOrName=NA&recurringDetailsResult.creationDate=2016-08-12T13%3A47%3A25%2B02%3A00&recurringDetailsResult.shopperReference=1&recurringDetailsResult.details.0.card.expiryYear=2018&recurringDetailsResult.details.0.paymentMethodVariant=discover&recurringDetailsResult.details.0.additionalData.cardBin=601160&recurringDetailsResult.details.0.billingAddress.postalCode=35005&recurringDetailsResult.details.0.card.billingAddress.city=Herndon&recurringDetailsResult.details.0.card.billingAddress.country=US&recurringDetailsResult.details.0.card.billingAddress.street=10+Lovely+Street&recurringDetailsResult.details.0.creationDate=2016-08-17T00%3A41%3A46%2B02%3A00&recurringDetailsResult.details.0.billingAddress.city=Herndon&recurringDetailsResult.details.0.recurringDetailReference=8314713873062304&recurringDetailsResult.lastKnownShopperEmail=spree%40example.com
+      string: recurringDetailsResult.details.1.billingAddress.street=10+Lovely+Street&recurringDetailsResult.details.1.variant=discover&recurringDetailsResult.details.1.billingAddress.city=Herndon&recurringDetailsResult.details.0.variant=amex&recurringDetailsResult.details.1.paymentMethodVariant=discover&recurringDetailsResult.details.1.card.billingAddress.country=US&recurringDetailsResult.details.0.card.holderName=Test+Tester&recurringDetailsResult.details.1.card.billingAddress.houseNumberOrName=NA&recurringDetailsResult.details.0.aliasType=Default&recurringDetailsResult.details.0.firstPspReference=8514407972386866&recurringDetailsResult.details.0.alias=K489418218765970&recurringDetailsResult.details.0.card.expiryMonth=6&recurringDetailsResult.details.1.additionalData.cardBin=601160&recurringDetailsResult.details.0.card.number=0002&recurringDetailsResult.details.1.aliasType=Default&recurringDetailsResult.details.1.card.billingAddress.street=10+Lovely+Street&recurringDetailsResult.details.1.card.number=6611&recurringDetailsResult.details.1.billingAddress.postalCode=93778&recurringDetailsResult.details.1.card.holderName=John+Doe&recurringDetailsResult.details.1.billingAddress.stateOrProvince=AL&recurringDetailsResult.details.1.card.billingAddress.stateOrProvince=AL&recurringDetailsResult.creationDate=2015-08-28T23%3A27%3A19%2B02%3A00&recurringDetailsResult.details.1.card.billingAddress.postalCode=93778&recurringDetailsResult.shopperReference=1&recurringDetailsResult.details.0.card.expiryYear=2016&recurringDetailsResult.details.0.paymentMethodVariant=amex&recurringDetailsResult.details.1.alias=M512442788467272&recurringDetailsResult.details.0.additionalData.cardBin=370000&recurringDetailsResult.details.1.firstPspReference=8815024086684148&recurringDetailsResult.details.1.billingAddress.houseNumberOrName=NA&recurringDetailsResult.details.1.card.billingAddress.city=Herndon&recurringDetailsResult.details.0.creationDate=2015-08-28T23%3A27%3A19%2B02%3A00&recurringDetailsResult.details.1.billingAddress.country=US&recurringDetailsResult.details.1.card.expiryMonth=8&recurringDetailsResult.details.1.creationDate=2017-08-11T01%3A44%3A28%2B02%3A00&recurringDetailsResult.details.1.recurringDetailReference=8314713789907691&recurringDetailsResult.details.0.recurringDetailReference=8414407972394291&recurringDetailsResult.lastKnownShopperEmail=spree%40example.com&recurringDetailsResult.details.1.card.expiryYear=2018
     http_version: 
-  recorded_at: Tue, 16 Aug 2016 23:31:56 GMT
-recorded_with: VCR 3.0.1
+  recorded_at: Thu, 10 Aug 2017 23:44:29 GMT
+recorded_with: VCR 3.0.3

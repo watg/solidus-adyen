@@ -101,32 +101,79 @@ describe Spree::Gateway::AdyenCreditCard do
     it { is_expected.to be false }
   end
 
-  describe 'authorize' do
+  describe '#authorize' do
+    include_context("mock adyen client", success: true, psp_reference: "123ABC")
+
     subject { gateway.authorize(2000, card, gateway_options) }
+
     let(:gateway) { described_class.new }
+    let(:card) { create(:credit_card, adyen_token: "ADYENTESTTOKEN") }
+    let(:payment) { create(:payment, source: card, payment_method: gateway) }
     let(:gateway_options) do
       {
-        order_id: "R423936067-5D5ZHURX",
+        order_id: payment.send(:gateway_order_id),
         email: "spree@example.com",
         customer_id: 1,
         currency: "USD",
         ip: "1.2.3.4"
       }
     end
-    let(:card) { stub_model(Spree::CreditCard, gateway_customer_profile_id: "CARDIDATADYEN") }
 
-    it { is_expected.to be_a(ActiveMerchant::Billing::Response) }
-    it { is_expected.to be_success }
+    context "reusing an existing source" do
+      let(:card) { create(:credit_card, gateway_customer_profile_id: "TESTACCOUNT") }
 
-    it "tells the user it's a dummy response" do
-      expect(subject.message).to eq("dummy authorization response")
+      it { is_expected.to be_a ::ActiveMerchant::Billing::Response }
+
+      it "sets the PSP reference as the authorization" do
+        expect(subject.authorization).to eq("123ABC")
+      end
+
+      it "calls the reauthorise existing endpoint" do
+        expect(client).to receive(:reauthorise_recurring_payment)
+        subject
+      end
+
+      context "action succeeds" do
+        it { is_expected.to be_success }
+
+      end
+
+      context "action fails" do
+        include_context("mock adyen client", success: false, fault_message: "No good!")
+
+        it { is_expected.not_to be_success }
+
+        it "returns the error message from Adyen" do
+          expect(subject.message).to eq("No good!")
+        end
+      end
+    end
+
+    context "paying with a new card" do
+      it "makes a new authorisation request" do
+        expect(client).to receive(:authorise_recurring_payment)
+        subject
+      end
+    end
+
+    context "no token or profile present" do
+      let(:card) { create(:credit_card) }
+
+      it "raises an error" do
+        expect { subject }.to raise_error(
+          Spree::Gateway::AdyenCreditCard::MissingTokenError,
+          I18n.t(:missing_token_error, scope: 'solidus-adyen')
+        )
+      end
     end
   end
 
   context "payment modifying actions" do
-    let(:gateway) { described_class.new }
+    let!(:payment) { create(:payment, response_code: "9999") }
+    let(:preferences) { { store_merchant_account_map: { payment.order.store.code => "myadyenaccount" } } }
+    let(:gateway) { described_class.new(preferences: preferences) }
 
-    shared_examples "delayed gateway action" do
+    shared_examples "delayed gateway action" do |action|
       context "when the action succeeds" do
         include_context "mock adyen client", success: true
 
@@ -134,6 +181,12 @@ describe Spree::Gateway::AdyenCreditCard do
 
         it "returns the orginal psp ref as an authorization" do
           expect(subject.authorization).to eq "9999"
+        end
+
+        it "includes the correct merchant account in the request" do
+          expect(client).to receive("#{action}_payment").
+            with(hash_including(merchant_account: "myadyenaccount"))
+          subject
         end
       end
 
@@ -156,17 +209,17 @@ describe Spree::Gateway::AdyenCreditCard do
 
     describe ".capture" do
       subject { gateway.capture(2000, "9999", currency: "EUR") }
-      include_examples "delayed gateway action"
+      include_examples "delayed gateway action", "capture"
     end
 
     describe ".credit" do
       subject { gateway.credit(2000, "9999", currency: "EUR") }
-      include_examples "delayed gateway action"
+      include_examples "delayed gateway action", "refund"
     end
 
     describe ".cancel" do
       subject { gateway.cancel("9999") }
-      include_examples "delayed gateway action"
+      include_examples "delayed gateway action", "cancel"
     end
   end
 end

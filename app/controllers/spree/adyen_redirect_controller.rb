@@ -1,9 +1,9 @@
 module Spree
   class AdyenRedirectController < AdyenController
-    before_filter :restore_session
-    before_filter :check_signature, only: :confirm
+    before_action :restore_session, only: :confirm
+    before_action :check_signature, only: :confirm
 
-    skip_before_filter :verify_authenticity_token
+    skip_before_action :verify_authenticity_token
 
     # This is the entry point after an Adyen HPP payment is completed
     def confirm
@@ -21,8 +21,31 @@ module Spree
       end
     end
 
+    # This is the entry point after returning from the 3DS page for credit cards
+    # that support it. MD is a unique payment session identifier returned
+    # by the card issuer.
+    def authorise3d
+      payment = Spree::Adyen::RedirectResponse.find_by(md: params[:MD]).payment
+      payment.request_env = request.env
+      payment_method = payment.payment_method
+      @order = payment.order
+
+      payment_method.authorize_3d_secure_payment(payment, adyen_3d_params)
+      payment.capture! if payment_method.auto_capture
+
+      if complete
+        redirect_to_order
+      else
+        redirect_to checkout_state_path(@order.state)
+      end
+
+      rescue Spree::Core::GatewayError
+        handle_failed_redirect
+    end
+
     private
-    def handle_failed_redirect source
+
+    def handle_failed_redirect
       flash.notice = Spree.t(:payment_processing_failed)
       redirect_to checkout_state_path(@order.state)
     end
@@ -30,7 +53,7 @@ module Spree
     def confirm_order_incomplete
       source = Adyen::HppSource.new(source_params)
 
-      return handle_failed_redirect(source) unless source.authorised?
+      return handle_failed_redirect unless source.authorised?
 
       # payment is created in a 'checkout' state so that the payment method
       # can attempt to auth it. The payment of course is already auth'd and
@@ -105,6 +128,12 @@ module Spree
 
     def response_params
       adyen_permitted_params
+    end
+
+    # We receive `MD`, a session identifier, and `PaRes`, an
+    # authentication response, from Adyen after 3d secure redirect
+    def adyen_3d_params
+      params.permit(:MD, :PaRes)
     end
 
     def adyen_permitted_params
