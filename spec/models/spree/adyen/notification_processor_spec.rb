@@ -90,7 +90,7 @@ RSpec.describe Spree::Adyen::NotificationProcessor do
       end
 
       context "when payment has already failed" do
-        before { payment.update(state: 'failed') }
+        before { payment.update(state: "failed") }
 
         it "does not change the payment state" do
           expect{ subject }.to_not change{ payment.state }
