@@ -24,7 +24,7 @@ module Spree
           content << shopper_partial if @params[:shopper]
           content << billing_address_partial if @params[:billing_address]
           content << fraud_offset_partial if @params[:fraud_offset]
-          content << capture_delay_partial if @params[:instant_capture]
+          content << capture_delay_partial(ENV['CAPTURE_DELAY_HOURS'].to_i) if ENV['CAPTURE_DELAY_HOURS']
           ::Adyen::API::PaymentService::LAYOUT %
             [@params[:merchant_account], @params[:reference], content]
         end
