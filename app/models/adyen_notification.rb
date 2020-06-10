@@ -92,7 +92,7 @@ class AdyenNotification < ActiveRecord::Base
     # If no reference take the last payment in the associated order where the
     # response_code was nil.
     if order
-      order
+      payment_with_reference = order
         .payments
         .joins(:payment_method)
         .where(
@@ -102,6 +102,8 @@ class AdyenNotification < ActiveRecord::Base
           response_code: nil
         )
         .last
+      payment_with_reference.update_attribute :response_code, reference
+      payment_with_reference
     end
   end
 
