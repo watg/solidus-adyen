@@ -51,11 +51,8 @@ module Spree
 
       def handle_failure
         notification.processed!
-        # ignore failures if the payment was already completed, or if it doesn't
-        # exist
-        return if payment.nil? || payment.completed? || payment.failed?
-        # might have to do something else on modification events,
-        # namely refunds
+        # might have to do something else on modification events, namely refunds
+        # let it fail if something is wrong
         payment.failure!
       end
 

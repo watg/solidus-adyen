@@ -101,6 +101,7 @@ class AdyenNotification < ActiveRecord::Base
           },
           response_code: nil
         )
+        .where(payment_state_option)
         .last
       payment_with_reference.update_attribute :response_code, reference
       payment_with_reference
@@ -183,4 +184,13 @@ class AdyenNotification < ActiveRecord::Base
   end
 
   alias_method :authorization?, :authorisation?
+
+  private
+
+  def payment_state_option
+    # select payment with matching state
+    if authorisation?
+      { state: [:pending, :processing] }
+    end
+  end
 end
