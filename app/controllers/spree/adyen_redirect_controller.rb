@@ -30,6 +30,14 @@ module Spree
       payment_method = payment.payment_method
       @order = payment.order
 
+      # If this is a guest order, the user is nil
+      # And something is blowing away this cookie during the redirects
+      # So we need to restore the token in the cookie so the redirect
+      # to the order works
+      unless @order.user
+        cookies.permanent.signed[:guest_token] = @order.guest_token
+      end
+
       payment_method.authorize_3d_secure_payment(payment, adyen_3d_params)
       payment.capture! if payment_method.auto_capture
 
