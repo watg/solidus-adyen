@@ -103,7 +103,7 @@ class AdyenNotification < ActiveRecord::Base
         )
         .where(payment_state_option)
         .last
-      payment_with_reference.update_attribute :response_code, reference
+      payment_with_reference.update_column :response_code, reference
       payment_with_reference
     end
   end
