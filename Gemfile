@@ -20,7 +20,6 @@ group :development, :test do
   gem "solidus_auth_devise"
 
   gem "pg"
-  gem "mysql2"
   gem "sqlite3"
 end
 
