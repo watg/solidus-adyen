@@ -53,7 +53,6 @@ module Spree
     def handle_3ds_response(payment, response)
       if response.success?
         payment.update_columns(state: 'pending', response_code: response.psp_reference)
-        payment.update_adyen_card_data
       else
         raise Authorize3DSecureError
       end
@@ -62,11 +61,11 @@ module Spree
     def perform_authorization(amount, card, gateway_options)
       # If this is a new credit card we should have the encrypted data
       if card.has_payment_profile?
-        rest_client.reauthorise_recurring_payment(
+        rest_client.authorise_payment(
           authorization_request(amount, card, gateway_options)
         )
       elsif card.adyen_token
-        rest_client.authorise_recurring_payment(
+        rest_client.authorise_payment(
           authorization_request(amount, card, gateway_options).
             merge(encrypted_card_data(card))
         )
@@ -90,9 +89,6 @@ module Spree
         billing_address: billing_address_from_source(payment.source),
         md: redirect_response_params["MD"],
         pa_response: redirect_response_params["PaRes"],
-        recurring: {
-          contract: "RECURRING"
-        },
         browser_info: {
           user_agent: payment.request_env["HTTP_USER_AGENT"],
           accept_header: payment.request_env["HTTP_ACCEPT"]

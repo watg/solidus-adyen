@@ -89,24 +89,6 @@ module Spree
         end
       end
 
-      def update_adyen_card_data
-        safe_credit_cards = get_safe_cards
-        return nil if safe_credit_cards.nil? || safe_credit_cards.empty?
-
-        # Ensure we use the correct card we just created
-        safe_credit_cards.sort_by! { |card| card[:creation_date] }
-        safe_credit_card_data = safe_credit_cards.last
-
-        source.update(
-          gateway_customer_profile_id: safe_credit_card_data[:recurring_detail_reference],
-          cc_type: safe_credit_card_data[:variant],
-          last_digits: safe_credit_card_data[:card_number],
-          month: "%02d" % safe_credit_card_data[:card_expiry_month],
-          year: "%04d" % safe_credit_card_data[:card_expiry_year],
-          name: safe_credit_card_data[:card_holder_name].encode("utf-8", "iso-8859-1")
-        )
-      end
-
       private
 
       def authorise_on_create
@@ -166,21 +148,8 @@ module Spree
             psp_reference: response.psp_reference
           )
         end
-        update_adyen_card_data if adyen_cc_payment? && response.success?
+
         super
-      end
-
-      def get_safe_cards
-        response = payment_method.rest_client.list_recurring_details({
-          merchant_account: payment_method.account_locator.by_order(order),
-          shopper_reference: order.adyen_shopper_reference
-        })
-
-        if response.success? && !response.gateway_response.details.blank?
-          response.gateway_response.details
-        else
-          log_entries.create!(details: response.to_yaml)
-        end
       end
 
       def should_authorise?
