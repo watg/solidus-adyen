@@ -20,13 +20,13 @@ group :development, :test do
   gem "solidus_auth_devise"
 
   gem "pg"
-  gem "mysql2"
   gem "sqlite3"
 end
 
 group :test do
+  gem "ffaker"
   gem "database_cleaner"
-  gem "factory_girl"
+  gem "factory_bot"
   gem "timecop"
   gem "vcr"
   gem "webmock", "~> 1.24"
