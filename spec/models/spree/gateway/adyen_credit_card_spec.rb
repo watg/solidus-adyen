@@ -128,8 +128,8 @@ describe Spree::Gateway::AdyenCreditCard do
         expect(subject.authorization).to eq("123ABC")
       end
 
-      it "calls the reauthorise existing endpoint" do
-        expect(client).to receive(:reauthorise_recurring_payment)
+      it "calls the authorise endpoint" do
+        expect(client).to receive(:authorise_payment)
         subject
       end
 
@@ -151,7 +151,7 @@ describe Spree::Gateway::AdyenCreditCard do
 
     context "paying with a new card" do
       it "makes a new authorisation request" do
-        expect(client).to receive(:authorise_recurring_payment)
+        expect(client).to receive(:authorise_payment)
         subject
       end
     end
