@@ -1,5 +1,5 @@
 module Spree
-  module Gateway::AdyenGateway
+  module PaymentMethod::AdyenPaymentMethod
     extend ActiveSupport::Concern
 
     included do

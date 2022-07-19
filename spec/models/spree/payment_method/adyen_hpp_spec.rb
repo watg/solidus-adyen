@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Spree::Gateway::AdyenHPP do
+describe Spree::PaymentMethod::AdyenHPP do
   let(:hpp_source) { create :hpp_source, psp_reference: "9999" }
   let(:gateway) { described_class.new }
 

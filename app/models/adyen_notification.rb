@@ -97,7 +97,7 @@ class AdyenNotification < ActiveRecord::Base
         .joins(:payment_method)
         .where(
           spree_payment_methods: {
-            type: ["Spree::Gateway::AdyenHPP", "Spree::Gateway::AdyenCreditCard"]
+            type: ["Spree::PaymentMethod::AdyenHPP", "Spree::PaymentMethod::AdyenCreditCard"]
           },
           response_code: nil
         )

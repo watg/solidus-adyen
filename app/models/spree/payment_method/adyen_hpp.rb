@@ -1,7 +1,7 @@
 module Spree
   # Gateway for Adyen Hosted Payment Pages solution
-  class Gateway::AdyenHPP < Gateway
-    include Spree::Gateway::AdyenGateway
+  class PaymentMethod::AdyenHPP < PaymentMethod
+    include Spree::PaymentMethod::AdyenPaymentMethod
 
     preference :skin_code, :string
     preference :shared_secret, :string

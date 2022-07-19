@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Spree::Gateway::AdyenRatepay do
+describe Spree::PaymentMethod::AdyenRatepay do
   let(:ratepay) { build_stubbed :ratepay_gateway }
 
   describe "#method_type" do

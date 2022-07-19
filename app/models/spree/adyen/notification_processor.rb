@@ -115,7 +115,7 @@ module Spree
           amount: notification.money.dollars,
           # We have no idea what payment method they used, this will be
           # updated when/if they get redirected
-          payment_method: Spree::Gateway::AdyenHPP.last,
+          payment_method: Spree::PaymentMethod::AdyenHPP.last,
           response_code: notification.psp_reference,
           source: source,
           order: order

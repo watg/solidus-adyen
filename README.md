@@ -111,7 +111,7 @@ your create the payment method.
 
 ## AdyenHPP Payment Method
 In the Solidus admin, go to your payment methods and create a new payment method
-using the `Spree::Gateway::AdyenHPP` provider.
+using the `Spree::PaymentMethod::AdyenHPP` provider.
 
 It is *very* important to note if any of the following values entered have any
 trailing or leading whitespace everything will break.

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe Spree::Gateway::AdyenCreditCard do
-  it { is_expected.to be_a(Spree::Gateway) }
+describe Spree::PaymentMethod::AdyenCreditCard do
+  it { is_expected.to be_a(Spree::PaymentMethod) }
 
   describe 'provider_class' do
     subject { described_class.new.provider_class }
@@ -161,7 +161,7 @@ describe Spree::Gateway::AdyenCreditCard do
 
       it "raises an error" do
         expect { subject }.to raise_error(
-          Spree::Gateway::AdyenCreditCard::MissingTokenError,
+          Spree::PaymentMethod::AdyenCreditCard::MissingTokenError,
           I18n.t(:missing_token_error, scope: 'solidus-adyen')
         )
       end
