@@ -50,7 +50,7 @@ describe Spree::Adyen::Payment do
 
         it "raises an error" do
           expect { subject }.to raise_error(
-            Spree::Gateway::AdyenRatepay::MissingDateOfBirthError,
+            Spree::PaymentMethod::AdyenRatepay::MissingDateOfBirthError,
             "Date of birth is required for invoice transactions."
           )
         end
@@ -78,7 +78,7 @@ describe Spree::Adyen::Payment do
 
           it "raises an error and creates a log entry" do
             expect { subject }.to raise_error(
-              Spree::Gateway::AdyenRatepay::InvoiceRejectedError,
+              Spree::PaymentMethod::AdyenRatepay::InvoiceRejectedError,
               "Invoice rejected"
             ).and change { Spree::LogEntry.count }.by(1)
           end
@@ -195,7 +195,7 @@ describe Spree::Adyen::Payment do
 
   describe "cancel!" do
     subject { payment.cancel! }
-    include_examples "gateway action", Spree::Gateway::AdyenHPP
+    include_examples "gateway action", Spree::PaymentMethod::AdyenHPP
 
     context "when the payment doesn't have an hpp source" do
       let(:payment) { create :payment }
@@ -226,7 +226,7 @@ describe Spree::Adyen::Payment do
 
   describe "capture!" do
     subject { payment.capture! }
-    include_examples "gateway action", Spree::Gateway::AdyenHPP
+    include_examples "gateway action", Spree::PaymentMethod::AdyenHPP
 
     context "when the payment doesn't have an hpp source" do
       let(:payment) { create :payment }
@@ -245,6 +245,6 @@ describe Spree::Adyen::Payment do
 
   describe "credit!" do
     subject { payment.credit! "1000", currency: "EUR" }
-    include_examples "gateway action", Spree::Gateway::AdyenHPP
+    include_examples "gateway action", Spree::PaymentMethod::AdyenHPP
   end
 end

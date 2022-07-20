@@ -2,7 +2,7 @@ FactoryBot.define do
   factory(
     :spree_gateway_adyen_ratepay,
     aliases: [:ratepay_gateway],
-    class: "Spree::Gateway::AdyenRatepay"
+    class: "Spree::PaymentMethod::AdyenRatepay"
   ) do
     name { "Ratepay" }
 

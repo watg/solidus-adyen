@@ -4,7 +4,7 @@ module Spree
     # that is a conditional flow only on adyen payments.
     module PaymentCheck
       def ratepay? payment = self
-        payment.payment_method.class == Spree::Gateway::AdyenRatepay
+        payment.payment_method.class == Spree::PaymentMethod::AdyenRatepay
       end
 
       def hpp_payment? payment = self
@@ -12,7 +12,7 @@ module Spree
       end
 
       def adyen_cc_payment? payment = self
-        payment.payment_method.class == Spree::Gateway::AdyenCreditCard
+        payment.payment_method.class == Spree::PaymentMethod::AdyenCreditCard
       end
     end
   end
