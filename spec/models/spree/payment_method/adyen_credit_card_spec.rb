@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Spree::PaymentMethod::AdyenCreditCard do
   it { is_expected.to be_a(Spree::PaymentMethod) }
 
-  describe 'provider_class' do
-    subject { described_class.new.provider_class }
+  describe 'gateway_class' do
+    subject { described_class.new.gateway_class }
 
     it { is_expected.to eq(Adyen::REST) }
   end
