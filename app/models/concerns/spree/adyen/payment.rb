@@ -31,7 +31,7 @@ module Spree
       end
 
       # capture! :: bool | error
-      def capture!
+      def capture!(capture_amount = nil)
         if hpp_payment? || adyen_cc_payment? || ratepay?
           amount = money.money.cents
           process do
