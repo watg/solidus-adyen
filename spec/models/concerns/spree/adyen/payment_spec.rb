@@ -225,8 +225,10 @@ describe Spree::Adyen::Payment do
   end
 
   describe "capture!" do
-    subject { payment.capture! }
+    subject { payment.capture!(*args) }
     include_examples "gateway action", Spree::PaymentMethod::AdyenHPP
+
+    let(:args) { [] }
 
     context "when the payment doesn't have an hpp source" do
       let(:payment) { create :payment }
@@ -239,6 +241,17 @@ describe Spree::Adyen::Payment do
 
           and change { payment.capture_events.count }.
           by(1)
+      end
+
+      context "when a capture amount is passed in" do
+        let(:args) { [123] }
+
+        it "keeps the original behaviour and doesn't error" do
+          expect{ subject }
+            .to change { payment.reload.state }
+            .from("checkout")
+            .to("completed")
+        end
       end
     end
   end
