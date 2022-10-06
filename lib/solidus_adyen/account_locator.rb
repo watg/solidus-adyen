@@ -26,7 +26,7 @@ module SolidusAdyen
     # @param psp_reference [String] the psp reference for the payment
     # @return merchant account [String] the name of the merchant account
     def by_reference(psp_reference)
-      code = Spree::Store.
+      code = ::Spree::Store.
         joins(orders: :payments).
         find_by(spree_payments: { response_code: psp_reference }).
         try!(:code)
