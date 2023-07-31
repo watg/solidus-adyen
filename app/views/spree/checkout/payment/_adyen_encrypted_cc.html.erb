@@ -9,7 +9,7 @@
 
 <div class="adyen-encrypted-cc field">
   <%= label_tag nil, Spree.t(:name_on_card) %><span class="required">*</span><br />
-  <%= text_field_tag nil, "#{@order.billing_firstname} #{@order.billing_lastname}", { autocomplete: "off", size: 20, id: nil, "data-encrypted-name" => "holderName"} %>
+  <%= text_field_tag nil, @order.billing_name, { autocomplete: "off", size: 20, id: nil, "data-encrypted-name" => "holderName"} %>
 </div>
 
 <div class="adyen-encrypted-cc field" data-hook="card_number">

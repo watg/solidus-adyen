@@ -69,13 +69,20 @@ module Spree
 
         def shopper_details dob
           address = @order.ship_address
+
+          # Unfortunately Adyen wants us to send names as separate fields, so
+          # we're stuck pretending that peoples names follow some conventional
+          # structure. This doesn't reflect reality.
+          first_name, *other_names = address.name.to_s.split(" ")
+          other_names = other_names.join(" ")
+
           {
             shopper_email: @order.email,
             shopper_reference: @order.user_id.to_s.presence || @order.number,
             shopper_name: {
-              first_name: address.firstname,
+              first_name: first_name,
               infix: "",
-              last_name: address.lastname,
+              last_name: other_names,
               gender: "UNKNOWN"
             },
             shopper_i_p: @order.last_ip_address,
