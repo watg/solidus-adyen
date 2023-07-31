@@ -54,7 +54,7 @@ module Spree
     private
 
     def handle_failed_redirect
-      flash.notice = Spree.t(:payment_processing_failed)
+      flash.notice = I18n.t(:payment_processing_failed)
       redirect_to checkout_state_path(@order.state)
     end
 
@@ -106,7 +106,7 @@ module Spree
 
     def redirect_to_order
       @current_order = nil
-      flash.notice = Spree.t(:order_processed_successfully)
+      flash.notice = I18n.t(:order_processed_successfully)
       flash['order_completed'] = true
       redirect_to order_path(@order)
     end

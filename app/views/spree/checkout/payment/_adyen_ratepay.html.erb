@@ -6,9 +6,9 @@
 
 <%= hidden_field_tag "#{param_prefix}[device_token]", device_token %>
 <fieldset>
-  <legend><%= Spree.t(:date_of_birth) %></legend>
+  <legend><%= t(:date_of_birth) %></legend>
   <div class="adyen-ratepay field">
-    <%= label_tag nil, Spree.t(:day) %><span class="required">*</span><br />
+    <%= label_tag nil, t(:day) %><span class="required">*</span><br />
     <%= text_field_tag "#{param_prefix}[dob_day]", nil,
       class: "required",
       autocomplete: "off",
@@ -18,7 +18,7 @@
   </div>
 
   <div class="adyen-ratepay field">
-    <%= label_tag nil, Spree.t(:month) %><span class="required">*</span><br />
+    <%= label_tag nil, t(:month) %><span class="required">*</span><br />
     <%= text_field_tag "#{param_prefix}[dob_month]", nil,
       class: "required",
       autocomplete: "off",
@@ -28,7 +28,7 @@
   </div>
 
   <div class="adyen-ratepay field">
-    <%= label_tag nil, Spree.t(:year) %><span class="required">*</span><br />
+    <%= label_tag nil, t(:year) %><span class="required">*</span><br />
     <%= text_field_tag "#{param_prefix}[dob_year]", nil,
       class: "required",
       autocomplete: "off",
