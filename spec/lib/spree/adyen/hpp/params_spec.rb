@@ -9,8 +9,7 @@ describe Spree::Adyen::HPP::Params do
       city: "Gotham",
       zipcode: "90210",
       country: country,
-      firstname: "Wade",
-      lastname: "Wilson",
+      name: "Wade Wilson",
       phone: "1234567890"
   end
   let(:order) do
