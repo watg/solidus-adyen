@@ -32,13 +32,13 @@ module Spree
       ::Adyen::REST
     end
 
-    def capture(amount, psp_reference, currency:, **_opts)
-      params = modification_request(amount, currency, psp_reference)
+    def capture(amount, psp_reference, gateway_options)
+      params = modification_request(amount, gateway_options[:currency], psp_reference)
 
       handle_response(rest_client.capture_payment(params), psp_reference)
     end
 
-    def cancel(psp_reference, _gateway_options = {})
+    def cancel(psp_reference, _gateway_options)
       params = {
         merchant_account: account_locator.by_reference(psp_reference),
         original_reference: psp_reference
@@ -47,12 +47,11 @@ module Spree
       handle_response(rest_client.cancel_payment(params), psp_reference)
     end
 
-
-    def credit(amount, source = nil, psp_reference, currency: nil, **options)
+    def credit(amount, source = nil, psp_reference, gateway_options)
       # in the case of a "refund", we don't have the full gateway_options
-      currency ||= options[:originator].payment.currency
+      currency ||= gateway_options[:originator].payment.currency
       params = modification_request(amount, currency, psp_reference)
-      params.merge!(options.slice(:additional_data)) if options[:additional_data]
+      params.merge!(options.slice(:additional_data)) if gateway_options[:additional_data]
 
       handle_response(rest_client.refund_payment(params), psp_reference)
     end
