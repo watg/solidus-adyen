@@ -16,7 +16,7 @@ module Spree
       ENV["RATEPAY_DEVICE_SID"] || preferred_device_sid
     end
 
-    def method_type
+    def partial_name
       "adyen_ratepay"
     end
 

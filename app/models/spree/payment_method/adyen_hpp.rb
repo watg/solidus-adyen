@@ -8,7 +8,7 @@ module Spree
     preference :days_to_ship, :integer, default: 1
     preference :restricted_brand_codes, :string, default: ''
 
-    def method_type
+    def partial_name
       "adyen"
     end
 
