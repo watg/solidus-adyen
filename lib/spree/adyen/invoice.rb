@@ -60,7 +60,7 @@ module Spree
       # @param [Spree::LineItem] line_item the line item to compute the amount for
       # @return [Fixnum] The pre-tax amount in cents
       def pre_tax_amount_from_line_item line_item
-        amount = (line_item.discounted_amount - line_item.included_tax_total) / line_item.quantity
+        amount = (line_item.total_before_tax - line_item.included_tax_total) / line_item.quantity
 
         Spree::Money.new(
           BigDecimal.new(amount.to_s).round(2, BigDecimal::ROUND_HALF_DOWN),
