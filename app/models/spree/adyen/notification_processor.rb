@@ -51,9 +51,44 @@ module Spree
 
       def handle_failure
         notification.processed!
-        # might have to do something else on modification events, namely refunds
-        # let it fail if something is wrong
-        payment.failure!
+
+        if notification.capture? && payment.capture_events.present?
+          # In our system, we are receiving duplicate capture events. The first is
+          # generally successful, while the second is always a failed capture event.
+          # In this case, we don't want `failure!` to be called on the payment as it
+          # was already successfully captured.
+          #
+          # Here is an example of the second failed capture webhook event:
+          # {
+          #    "live" : "true",
+          #    "notificationItems" : [
+          #       {
+          #          "NotificationRequestItem" : {
+          #             "additionalData" : {
+          #                "bookingDate" : "********************"
+          #             },
+          #             "amount" : {
+          #                "currency" : "USD",
+          #                "value" : 99999
+          #             },
+          #             "eventCode" : "CAPTURE",
+          #             "eventDate" : "redacted",
+          #             "merchantAccountCode" : "redacted",
+          #             "merchantReference" : "redacted",
+          #             "originalReference" : "redacted",
+          #             "paymentMethod" : "redacted",
+          #             "pspReference" : "redacted",
+          #             "reason" : "Insufficient balance on payment",
+          #             "success" : "false"
+          #          }
+          #       }
+          #    ]
+          # }
+          #
+          return
+        else
+          payment.failure!
+        end
       end
 
       def handle_modification_event
