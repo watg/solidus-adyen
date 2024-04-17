@@ -45,7 +45,7 @@ module Spree
           subject { described_class.build(record) }
 
           [[:log_entry, Communications::LogEntry],
-           [:source, Communications::HppSource],
+           [:source, Communications::HPPSource],
            [:notification, Communications::AdyenNotification]
           ].each do |assigned_name, presenter|
             context "when presented object is a #{assigned_name.to_s.humanize}" do
