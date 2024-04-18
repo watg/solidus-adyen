@@ -8,7 +8,7 @@ module Spree
       end
 
       def hpp_payment? payment = self
-        payment.source.class == Spree::Adyen::HppSource
+        payment.source.class == Spree::Adyen::HPPSource
       end
 
       def adyen_cc_payment? payment = self

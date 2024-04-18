@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :spree_adyen_hpp_source, aliases: [:hpp_source], class: "Spree::Adyen::HppSource" do
+  factory :spree_adyen_hpp_source, aliases: [:hpp_source], class: "Spree::Adyen::HPPSource" do
     skin_code { "XXXXXXXX" }
     shopper_locale { "en_GB" }
     auth_result { "AUTHORISED" }

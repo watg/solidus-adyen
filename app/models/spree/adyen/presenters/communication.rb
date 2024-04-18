@@ -6,7 +6,7 @@ module Spree
       class Communication < SimpleDelegator
         PRESENTERS = [
           ::Spree::Adyen::Presenters::Communications::AdyenNotification,
-          ::Spree::Adyen::Presenters::Communications::HppSource,
+          ::Spree::Adyen::Presenters::Communications::HPPSource,
           ::Spree::Adyen::Presenters::Communications::RatepaySource,
           ::Spree::Adyen::Presenters::Communications::LogEntry
         ].freeze

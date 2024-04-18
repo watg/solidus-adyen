@@ -59,7 +59,7 @@ module Spree
     end
 
     def confirm_order_incomplete
-      source = Adyen::HppSource.new(source_params)
+      source = Adyen::HPPSource.new(source_params)
 
       return handle_failed_redirect unless source.authorised?
 
@@ -96,7 +96,7 @@ module Spree
         # notification must have completed the order and created the payment.
         # Therefore select the last Adyen payment.
         payment =
-          @order.payments.where(source_type: "Spree::Adyen::HppSource").last
+          @order.payments.where(source_type: "Spree::Adyen::HPPSource").last
       end
 
       payment.source.update(source_params)

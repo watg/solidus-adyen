@@ -8,7 +8,7 @@
 # Information about when certain action are valid:
 # https://docs.adyen.com/display/TD/HPP+modifications
 module Spree::Adyen
-  class HppSource < ::ActiveRecord::Base
+  class HPPSource < ::ActiveRecord::Base
     MANUALLY_REFUNDABLE = [
       "directEbanking"
     ].freeze
