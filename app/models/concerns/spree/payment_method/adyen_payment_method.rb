@@ -38,7 +38,7 @@ module Spree
       handle_response(rest_client.capture_payment(params), psp_reference)
     end
 
-    def cancel(psp_reference, _gateway_options)
+    def cancel(psp_reference, _gateway_options = {})
       params = {
         merchant_account: account_locator.by_reference(psp_reference),
         original_reference: psp_reference
