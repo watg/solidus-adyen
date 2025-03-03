@@ -14,9 +14,14 @@ module Spree
 
     include Spree::PaymentMethod::AdyenPaymentMethod
     preference :cse_library_location, :string
+    preference :cse_library_location_integrity, :string
 
     def cse_library_location
       ENV["ADYEN_CSE_LIBRARY_LOCATION"] || preferred_cse_library_location
+    end
+
+    def cse_library_location_integrity
+      preferred_cse_library_location_integrity
     end
 
     def partial_name

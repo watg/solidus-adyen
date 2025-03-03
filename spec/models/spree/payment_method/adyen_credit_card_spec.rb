@@ -46,6 +46,20 @@ describe Spree::PaymentMethod::AdyenCreditCard do
     end
   end
 
+  describe 'cse_library_location_integrity' do
+    subject { described_class.new.cse_library_location_integrity }
+
+    it { is_expected.to be_nil }
+
+    context "with a preference set" do
+      subject do
+        described_class.new(preferred_cse_library_location_integrity: "SOMETHING").cse_library_location_integrity
+      end
+
+      it { is_expected.to eq("SOMETHING") }
+    end
+  end
+
   describe 'api_username' do
     subject { described_class.new.api_username }
 
