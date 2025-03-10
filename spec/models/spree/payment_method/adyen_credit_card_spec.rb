@@ -60,6 +60,34 @@ describe Spree::PaymentMethod::AdyenCreditCard do
     end
   end
 
+  describe '#checkoutshopper_cse_library_location' do
+    let(:payment_method) { described_class.new }
+
+    subject { payment_method.checkoutshopper_cse_library_location }
+
+    context 'when cse_library_location is blank' do
+      it { is_expected.to be_nil }
+    end
+
+    context 'when cse_library_location is present' do
+      before do
+        payment_method.preferred_cse_library_location = 'https://live.adyen.com/hpp/cse/js/12345.shtml'
+      end
+
+      context 'when server is live' do
+        before { payment_method.preferred_server = 'live' }
+
+        it { is_expected.to eq('https://checkoutshopper-live.adyen.com/checkoutshopper/utility/v1/cse/js/12345.shtml') }
+      end
+
+      context 'when server is test' do
+        before { payment_method.preferred_server = 'test' }
+
+        it { is_expected.to eq('https://checkoutshopper-test.adyen.com/checkoutshopper/utility/v1/cse/js/12345.shtml') }
+      end
+    end
+  end
+
   describe 'api_username' do
     subject { described_class.new.api_username }
 

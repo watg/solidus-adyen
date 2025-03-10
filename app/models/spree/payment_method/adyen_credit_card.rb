@@ -24,6 +24,13 @@ module Spree
       preferred_cse_library_location_integrity
     end
 
+    def checkoutshopper_cse_library_location
+      return unless cse_library_location.present?
+
+      code = cse_library_location.split("/").last.split(".").first
+      "https://checkoutshopper-#{preferred_server}.adyen.com/checkoutshopper/utility/v1/cse/js/#{code}.shtml"
+    end
+
     def partial_name
       "adyen_encrypted_cc"
     end
