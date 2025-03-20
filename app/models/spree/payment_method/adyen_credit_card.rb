@@ -14,9 +14,21 @@ module Spree
 
     include Spree::PaymentMethod::AdyenPaymentMethod
     preference :cse_library_location, :string
+    preference :cse_library_location_integrity, :string
 
     def cse_library_location
       ENV["ADYEN_CSE_LIBRARY_LOCATION"] || preferred_cse_library_location
+    end
+
+    def cse_library_location_integrity
+      preferred_cse_library_location_integrity
+    end
+
+    def checkoutshopper_cse_library_location
+      return unless cse_library_location.present?
+
+      code = cse_library_location.split("/").last.split(".").first
+      "https://checkoutshopper-#{preferred_server}.adyen.com/checkoutshopper/utility/v1/cse/js/#{code}.shtml"
     end
 
     def partial_name
