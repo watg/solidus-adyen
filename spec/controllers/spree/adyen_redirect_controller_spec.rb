@@ -138,4 +138,38 @@ RSpec.describe Spree::AdyenRedirectController, type: :controller do
       let(:auth_result) { "REFUSED" }
     end
   end
+
+  # Inherited from Spree::AdyenController, so we exercise it here through a real
+  # request to one of its subclasses.
+  describe "Sentry critical path tagging" do
+    subject(:action) { get :confirm, params: params }
+
+    let(:params) do
+      { merchantReference: order.number,
+        skinCode: "xxxxxxxx",
+        shopperLocale: "en_GB",
+        paymentMethod: "amex",
+        authResult: "AUTHORISED",
+        pspReference: "8813824003752247",
+        merchantSig: "erewrwerewrewrwer",
+        merchantReturnData: "#{order.guest_token}|#{gateway.id}" }
+    end
+
+    context "when Sentry is defined" do
+      it "tags the request with the checkout critical path" do
+        sentry = class_double("Sentry").as_stubbed_const
+        expect(sentry).to receive(:set_tags).with(critical_path: "checkout")
+
+        action
+      end
+    end
+
+    context "when Sentry is not defined" do
+      before { hide_const("Sentry") if defined?(Sentry) }
+
+      it "does not raise" do
+        expect { action }.not_to raise_error
+      end
+    end
+  end
 end
