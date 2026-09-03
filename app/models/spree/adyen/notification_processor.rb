@@ -85,10 +85,17 @@ module Spree
           #    ]
           # }
           #
-          return
+          recomplete_captured_payment!
         else
           payment.failure!
         end
+      end
+
+      def recomplete_captured_payment!
+        return unless payment.pending? || payment.processing?
+        return if payment.uncaptured_amount.positive?
+
+        payment.complete!
       end
 
       def handle_modification_event
