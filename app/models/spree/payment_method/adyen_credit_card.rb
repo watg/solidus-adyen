@@ -63,11 +63,19 @@ module Spree
     # will cause the payment to be in the `failed` state. To counteract this,
     # we update the column without callbacks when we successfully authorize.
     def handle_3ds_response(payment, response)
-      if response.success?
-        payment.update_columns(state: 'pending', response_code: response.psp_reference)
-      else
-        raise Authorize3DSecureError
-      end
+      raise Authorize3DSecureError unless response.success?
+
+      # Because `update_columns` bypasses the state machine, it must only ever
+      # rescue a payment that is still waiting on 3DS, which mirrors the
+      # controller's `awaiting_3d_secure?`. A payment that already moved on
+      # (completed by the capture notification, processing, void) must never be
+      # downgraded: a duplicate 3DS redirect used to do exactly that, which left
+      # fully captured payments stuck in `processing`. `pending` is left out as
+      # well, since that is where a successful 3DS authorization leaves the
+      # payment, and running this again would overwrite its psp reference.
+      return unless payment.state.in?(%w[failed checkout])
+
+      payment.update_columns(state: 'pending', response_code: response.psp_reference)
     end
 
     def perform_authorization(amount, card, gateway_options)

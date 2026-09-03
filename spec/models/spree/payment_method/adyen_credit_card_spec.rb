@@ -210,6 +210,85 @@ describe Spree::PaymentMethod::AdyenCreditCard do
     end
   end
 
+  describe '#authorize_3d_secure_payment' do
+    include_context("mock adyen client", success: true, psp_reference: "3DSREF")
+
+    subject(:authorize_3ds) do
+      gateway.authorize_3d_secure_payment(
+        payment, { "MD" => "the-md", "PaRes" => "the-pa-res" }
+      )
+    end
+
+    let(:gateway) { create(:adyen_cc_gateway) }
+
+    let(:payment) do
+      create(
+        :adyen_cc_payment,
+        amount: 20,
+        state: payment_state,
+        response_code: "8813824003752247",
+        payment_method: gateway
+      )
+    end
+
+    before do
+      payment.request_env = {
+        "HTTP_USER_AGENT" => "Mozilla/5.0",
+        "HTTP_ACCEPT" => "text/html"
+      }
+    end
+
+    context "when the payment is still waiting on 3DS" do
+      let(:payment_state) { "failed" }
+
+      it "moves the payment back to pending" do
+        expect { authorize_3ds }.
+          to change { payment.reload.state }.
+          from("failed").
+          to("pending")
+      end
+
+      it "stores the psp reference of the 3DS authorization" do
+        expect { authorize_3ds }.
+          to change { payment.reload.response_code }.
+          to("3DSREF")
+      end
+    end
+
+    context "when the authorization is refused" do
+      include_context("mock adyen client", success: false)
+
+      let(:payment_state) { "failed" }
+
+      it "raises" do
+        expect { authorize_3ds }.to raise_error(
+          Spree::PaymentMethod::AdyenCreditCard::Authorize3DSecureError
+        )
+      end
+    end
+
+    # The payment has already been authorized, and captured by the time the
+    # capture notification lands. Since `update_columns` bypasses the state
+    # machine, guarding it here is what keeps a duplicate 3DS redirect from
+    # knocking a payment that already moved on back to `pending`. `pending` is
+    # where a successful 3DS authorization leaves the payment, so there it is the
+    # response code assertion that carries the weight: the psp reference of the
+    # first authorization must not be replaced by that of a second one.
+    %w[pending completed processing void].each do |state|
+      context "when the payment is already #{state}" do
+        let(:payment_state) { state }
+
+        it "does not change the payment state" do
+          expect { authorize_3ds }.to keep { payment.reload.state }
+        end
+
+        it "does not change the response code" do
+          expect { authorize_3ds }.to keep { payment.reload.response_code }
+        end
+      end
+    end
+  end
+
   context "payment modifying actions" do
     let!(:payment) { create(:payment, response_code: "9999") }
     let(:preferences) { { store_merchant_account_map: { payment.order.store.code => "myadyenaccount" } } }

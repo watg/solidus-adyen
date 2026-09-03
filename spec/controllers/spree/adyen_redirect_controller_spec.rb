@@ -139,6 +139,143 @@ RSpec.describe Spree::AdyenRedirectController, type: :controller do
     end
   end
 
+  describe "POST authorise3d" do
+    include_context "mock adyen client",
+      success: true,
+      psp_reference: "8888888888888888"
+
+    subject(:action) { post :authorise3d, params: params }
+
+    let!(:cc_gateway) { create :adyen_cc_gateway, auto_capture: true }
+
+    let(:payment) do
+      create(
+        :adyen_cc_payment,
+        amount: order.total,
+        state: payment_state,
+        response_code: "8813824003752247",
+        payment_method: cc_gateway,
+        order: order
+      )
+    end
+
+    let!(:redirect_response) do
+      Spree::Adyen::RedirectResponse.create!(payment: payment, md: md)
+    end
+
+    let(:md) { "X/C2Fsz+BtrXBXJ5LUJN" }
+    let(:params) { { MD: md, PaRes: "eNqtmFmTo0iSgN" } }
+
+    # A duplicate 3DS return (browser refresh, duplicated redirect) used to
+    # downgrade an already captured payment back to `pending` and fire a second
+    # capture, which Adyen refuses, leaving the payment stuck in `processing`.
+    shared_examples "does not re-run the 3DS authorization" do
+      it "does not send a second authorization to Adyen" do
+        expect(client).to_not receive(:authorise_payment_3dsecure)
+        action
+      end
+
+      it "does not send a second capture to Adyen" do
+        expect(client).to_not receive(:capture_payment)
+        action
+      end
+
+      it "does not change the payment state" do
+        expect { action }.to keep { payment.reload.state }
+      end
+
+      it "does not change the response code" do
+        expect { action }.to keep { payment.reload.response_code }
+      end
+    end
+
+    context "when the payment is still waiting on 3DS" do
+      let(:payment_state) { "failed" }
+
+      it "authorizes the payment with Adyen" do
+        action
+        expect(client).to have_received(:authorise_payment_3dsecure)
+      end
+
+      it "captures the payment" do
+        expect { action }.
+          to change { payment.reload.state }.
+          from("failed").
+          to("processing")
+      end
+
+      it "stores the psp reference of the 3DS authorization" do
+        expect { action }.
+          to change { payment.reload.response_code }.
+          to("8888888888888888")
+      end
+
+      it "completes the order" do
+        expect { action }.to change { order.reload.state }.to "complete"
+      end
+
+      it "redirects to the order" do
+        is_expected.to have_http_status(:redirect).
+          and redirect_to order_path(order)
+      end
+    end
+
+    context "when the payment has already been completed" do
+      let(:payment_state) { "completed" }
+
+      include_examples "does not re-run the 3DS authorization"
+
+      it "does not record a payment state change" do
+        expect { action }.to keep { payment.state_changes.count }
+      end
+
+      it "completes the order and redirects to it" do
+        expect { action }.to change { order.reload.state }.to "complete"
+        is_expected.to redirect_to order_path(order)
+      end
+
+      context "and the order is already complete" do
+        before do
+          order.contents.advance
+          order.complete
+        end
+
+        include_examples "does not re-run the 3DS authorization"
+
+        it "redirects to the order" do
+          is_expected.to have_http_status(:redirect).
+            and redirect_to order_path(order)
+        end
+      end
+    end
+
+    context "when the payment is already being captured" do
+      let(:payment_state) { "processing" }
+
+      include_examples "does not re-run the 3DS authorization"
+    end
+
+    # Either a stale or replayed 3DS return, or the shopper re-entered the
+    # checkout and `invalidate_old_payments` destroyed the redirect response.
+    context "when the MD does not match a redirect response" do
+      let(:payment_state) { "failed" }
+      let(:params) { { MD: "some-unknown-md", PaRes: "eNqtmFmTo0iSgN" } }
+
+      it "does not raise" do
+        expect { action }.to_not raise_error
+      end
+
+      it "redirects to the cart" do
+        is_expected.to have_http_status(:redirect).
+          and redirect_to cart_path
+      end
+
+      it "does not touch the payment" do
+        expect { action }.to keep { payment.reload.state }
+      end
+    end
+  end
+
   # Inherited from Spree::AdyenController, so we exercise it here through a real
   # request to one of its subclasses.
   describe "Sentry critical path tagging" do

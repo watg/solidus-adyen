@@ -25,7 +25,9 @@ module Spree
     # that support it. MD is a unique payment session identifier returned
     # by the card issuer.
     def authorise3d
-      payment = Spree::Adyen::RedirectResponse.find_by(md: params[:MD]).payment
+      payment = Spree::Adyen::RedirectResponse.find_by(md: params[:MD])&.payment
+      return handle_unknown_3ds_redirect if payment.nil?
+
       payment.request_env = request.env
       payment_method = payment.payment_method
       @order = payment.order
@@ -38,10 +40,16 @@ module Spree
         cookies.permanent.signed[:guest_token] = @order.guest_token
       end
 
-      payment_method.authorize_3d_secure_payment(payment, adyen_3d_params)
-      payment.capture! if payment_method.auto_capture
+      # This endpoint can be hit more than once for the same payment (browser
+      # refresh, duplicated redirect). Authorizing again would downgrade an
+      # already captured payment back to `pending` and fire a second capture
+      # that Adyen refuses, leaving the payment stuck in `processing`.
+      if awaiting_3d_secure?(payment)
+        payment_method.authorize_3d_secure_payment(payment, adyen_3d_params)
+        payment.capture! if payment_method.auto_capture
+      end
 
-      if complete
+      if @order.complete? || complete
         redirect_to_order
       else
         redirect_to checkout_state_path(@order.state)
@@ -53,8 +61,23 @@ module Spree
 
     private
 
+    # The payment is left in `failed` by the checkout time authorization, as
+    # the `RedirectShopper` response is a failed billing response. Those are
+    # the only states from which the 3D Secure authorization should still run.
+    def awaiting_3d_secure?(payment)
+      payment.failed? || payment.checkout?
+    end
+
+    # The MD does not match any redirect response: a stale or replayed 3D
+    # Secure return, or the shopper re-entered the checkout and
+    # `invalidate_old_payments` destroyed the redirect response.
+    def handle_unknown_3ds_redirect
+      flash[:error] = I18n.t(:payment_processing_failed, scope: :spree)
+      redirect_to cart_path
+    end
+
     def handle_failed_redirect
-      flash.notice = I18n.t(:payment_processing_failed)
+      flash.notice = I18n.t(:payment_processing_failed, scope: :spree)
       redirect_to checkout_state_path(@order.state)
     end
 
@@ -106,7 +129,7 @@ module Spree
 
     def redirect_to_order
       @current_order = nil
-      flash.notice = I18n.t(:order_processed_successfully)
+      flash.notice = I18n.t(:order_processed_successfully, scope: :spree)
       flash['order_completed'] = true
       redirect_to order_path(@order)
     end
