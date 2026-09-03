@@ -1,39 +1,166 @@
 version: 2.1
+
+# Pinned to an exact version on purpose. The previous config tracked
+# solidusio/extensions@volatile, which silently resolved to a release that had
+# renamed the command this config called, and every pipeline failed to compile.
 orbs:
-  # Always run tests agains the versions of Solidus defined in the
-  # most recent version of the Orb.
-  solidusio_extensions: solidusio/extensions@volatile
+  browser-tools: circleci/browser-tools@2.2.0
 
 jobs:
-  run-specs-with-postgres:
-    executor: solidusio_extensions/postgres
+  specs:
+    parameters:
+      solidus_version:
+        description: Released Solidus version to resolve against.
+        type: string
+      rails_version:
+        description: Rails requirement passed through to the Gemfile.
+        type: string
+        default: "~> 6.1.0"
+    working_directory: ~/project
+    resource_class: medium
+    docker:
+      - image: cimg/ruby:3.1.6-browsers
+        environment:
+          CI: "true"
+          RAILS_ENV: test
+          SOLIDUS_VERSION: << parameters.solidus_version >>
+          RAILS_VERSION: << parameters.rails_version >>
+          # Read by the Solidus dummy-app generator's database.yml template.
+          # DB must be "postgres" or "postgresql"; anything else raises, and a
+          # blank value silently falls back to sqlite. The generator emits no
+          # username/host unless these are set, and the postgres service
+          # container has no unix socket and no "circleci" role.
+          DB: postgres
+          DB_HOST: 127.0.0.1
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+      - image: cimg/postgres:14.24
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: circle_test
     steps:
       - checkout
-      - solidusio_extensions/run-tests-solidus-older
-      - solidusio_extensions/run-tests-solidus-current
-      - solidusio_extensions/store-test-results
-  run-specs-with-master:
-    executor: solidusio_extensions/postgres
-    steps:
-      - checkout
-      - solidusio_extensions/run-tests-solidus-master
-      - solidusio_extensions/store-test-results
 
+      # spec/features/credit_card_processing_spec.rb has two js: true describes
+      # that need a real browser and driver. These commands guarantee a matched
+      # Chrome/chromedriver pair. Note the 2.x command names use underscores;
+      # the hyphenated 1.x names no longer compile. Those examples still ask
+      # for poltergeist/PhantomJS in spec_helper.rb, which no longer exists, so
+      # this only puts the browser in place for the selenium driver they need.
+      - browser-tools/install_chrome
+      - browser-tools/install_chromedriver
+
+      # Gemfile.lock is gitignored, so it has to be generated before any
+      # restore_cache that checksums it: {{ checksum }} errors on a missing
+      # file rather than skipping the key.
+      - run:
+          name: Resolve dependencies
+          command: bundle lock --update
+
+      - restore_cache:
+          keys:
+            - v1-gems-ruby3.1.6-solidus<< parameters.solidus_version >>-{{ checksum "Gemfile.lock" }}
+            - v1-gems-ruby3.1.6-solidus<< parameters.solidus_version >>-
+
+      - run:
+          name: Bundle install
+          command: |
+            bundle config set --local path vendor/bundle
+            bundle install --jobs=4 --retry=3
+
+      - save_cache:
+          key: v1-gems-ruby3.1.6-solidus<< parameters.solidus_version >>-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+
+      # CircleCI starts service containers without waiting for them to accept
+      # connections, and the next step immediately runs db:drop db:create.
+      - run:
+          name: Wait for PostgreSQL
+          command: |
+            for attempt in $(seq 1 30); do
+              if (exec 3<>/dev/tcp/127.0.0.1/5432) 2>/dev/null; then
+                echo "PostgreSQL is accepting connections"
+                exit 0
+              fi
+              echo "PostgreSQL is not ready yet (attempt ${attempt}/30)"
+              sleep 2
+            done
+            echo "PostgreSQL did not become ready in time"
+            exit 1
+
+      # spec/dummy is gitignored and spec_helper requires it, so the app has to
+      # be generated before rspec runs. This also copies the extension's
+      # migrations into the dummy app and migrates them.
+      - run:
+          name: Generate dummy app
+          command: bundle exec rake test_app
+
+      # Run from the repo root: spec_helper sets FactoryBot.definition_file_paths
+      # and example_status_persistence_file_path to ./spec-relative paths.
+      # `rake` is not an option here, the Rakefile declares task default: [:spec]
+      # but never instantiates RSpec::Core::RakeTask.
+      - run:
+          name: RSpec
+          command: |
+            mkdir -p test-results/rspec
+            bundle exec rspec \
+              --format progress \
+              --format RspecJunitFormatter \
+              --out test-results/rspec/results.xml
+
+      - run:
+          name: Ensure artifact paths exist
+          command: mkdir -p test-results/rspec spec/dummy/tmp/capybara
+          when: always
+
+      # when: always on all three, otherwise a failing spec run stores nothing
+      # and the failure has to be read out of the raw step log.
+      - store_test_results:
+          path: test-results
+          when: always
+
+      - store_artifacts:
+          path: test-results
+          destination: test-results
+          when: always
+
+      # Capybara writes failure screenshots under the dummy app, not ./tmp.
+      - store_artifacts:
+          path: spec/dummy/tmp/capybara
+          destination: capybara
+          when: always
 
 workflows:
-  "Run specs on supported Solidus versions":
+  ci:
     jobs:
-      - run-specs-with-postgres
-  "Run specs on Solidus master":
-    jobs:
-      - run-specs-with-master
-  "Weekly run specs against master":
+      # The versions the stores run: rowan-solidus and sirdar-solidus are on
+      # solidus_core 3.0.8, watg-solidus on 3.2.5. All three pin Rails 6.1.
+      - specs:
+          name: solidus-3.0.8
+          solidus_version: "3.0.8"
+      - specs:
+          name: solidus-3.2.5
+          solidus_version: "3.2.5"
+
+  # Gemfile.lock is not committed, so every run re-resolves against rubygems
+  # and a green build says nothing about tomorrow. This catches dependency
+  # drift on master without needing a commit to trigger it. The
+  # triggers/schedule key is the deprecated form; a Project Settings schedule
+  # trigger is the current replacement.
+  weekly:
     triggers:
       - schedule:
-          cron: "0 0 * * 4" # every Thursday
+          cron: "0 3 * * 1"
           filters:
             branches:
               only:
                 - master
     jobs:
-      - run-specs-with-master
+      - specs:
+          name: solidus-3.0.8
+          solidus_version: "3.0.8"
+      - specs:
+          name: solidus-3.2.5
+          solidus_version: "3.2.5"
