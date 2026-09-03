@@ -85,10 +85,22 @@ module Spree
           #    ]
           # }
           #
-          return
+          recomplete_captured_payment!
         else
           payment.failure!
         end
+      end
+
+      # A duplicate 3DS redirect can knock an already captured payment back to
+      # `pending` and fire the second capture that produces the failed event
+      # above, so it can arrive while the payment sits in `pending` or
+      # `processing` with nothing left to move it on. The money is already
+      # captured, so put the payment back where it belongs.
+      def recomplete_captured_payment!
+        return unless payment.pending? || payment.processing?
+        return if payment.uncaptured_amount.positive?
+
+        payment.complete!
       end
 
       def handle_modification_event
