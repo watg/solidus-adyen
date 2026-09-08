@@ -49,7 +49,7 @@ module Spree
 
     def credit(amount, source = nil, psp_reference, gateway_options)
       # in the case of a "refund", we don't have the full gateway_options
-      currency ||= gateway_options[:originator].currency
+      currency = gateway_options[:currency] || gateway_options[:originator].currency
       params = modification_request(amount, currency, psp_reference)
       params.merge!(gateway_options.slice(:additional_data)) if gateway_options[:additional_data]
 
