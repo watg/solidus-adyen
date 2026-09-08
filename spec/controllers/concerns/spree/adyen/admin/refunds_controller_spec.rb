@@ -25,7 +25,11 @@ RSpec.describe Spree::Admin::RefundsController do
     let(:payment_opts) { {state: "completed", amount: 100.0} }
 
     before do
-      allow(Spree::Payment).to receive(:find_by_id) { payment }
+      # Solidus' ResourceController loads the parent payment with
+      # `Spree::Payment.includes(nil).find_by!(id: ...)`, we need it to hand
+      # back the very instance the examples set expectations on.
+      allow(Spree::Payment).
+        to receive_message_chain(:includes, :find_by!) { payment }
       payment.capture_events.create!(amount: 100.0)
     end
 

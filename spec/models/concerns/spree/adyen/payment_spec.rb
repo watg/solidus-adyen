@@ -231,7 +231,9 @@ describe Spree::Adyen::Payment do
     let(:args) { [] }
 
     context "when the payment doesn't have an hpp source" do
-      let(:payment) { create :payment }
+      # Solidus' Payment::Processing#capture! bails out on a non-positive
+      # amount, and the plain :payment factory doesn't set one.
+      let(:payment) { create :payment, amount: 100 }
 
       it "keeps the orginal behaviour" do
         expect{ subject }.
