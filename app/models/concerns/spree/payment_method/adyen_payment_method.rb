@@ -47,6 +47,16 @@ module Spree
       handle_response(rest_client.cancel_payment(params), psp_reference)
     end
 
+    # Solidus voids a payment through Spree::Payment#void_transaction!, which
+    # delegates :void to the gateway unless the payment method answers it. This
+    # one does not have a gateway to delegate to - gateway_class returns the
+    # ::Adyen::REST module, which has no .new - so admin voids raised
+    # NoMethodError instead of reaching Adyen. Cancelling the authorisation is
+    # what a void means here, so reuse it.
+    def void(psp_reference, _gateway_options = {})
+      cancel(psp_reference)
+    end
+
     def credit(amount, source = nil, psp_reference, gateway_options)
       # in the case of a "refund", we don't have the full gateway_options
       currency = gateway_options[:currency] || gateway_options[:originator].currency
