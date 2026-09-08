@@ -8,14 +8,11 @@ shared_context "checkout setup" do
   let!(:normal_cc_gateway) { create(:credit_card_payment_method) }
 
   before(:each) do
-    order = OrderWalkthrough.up_to(:delivery)
-
     user = create(:user)
-    order.user = user
-    order.update!
+    order = Spree::TestingSupport::OrderWalkthrough.up_to(:delivery, user: user)
 
     allow_any_instance_of(Spree::CheckoutController).to receive_messages(current_order: order)
-    allow_any_instance_of(Spree::CheckoutController).to receive_messages(try_spree_current_user: user)
+    allow_any_instance_of(Spree::CheckoutController).to receive_messages(spree_current_user: user)
 
     visit spree.checkout_state_path(:delivery)
     click_button "Save and Continue"
