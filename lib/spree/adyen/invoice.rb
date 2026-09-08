@@ -63,7 +63,7 @@ module Spree
         amount = (line_item.total_before_tax - line_item.included_tax_total) / line_item.quantity
 
         Spree::Money.new(
-          BigDecimal.new(amount.to_s).round(2, BigDecimal::ROUND_HALF_DOWN),
+          BigDecimal(amount.to_s).round(2, BigDecimal::ROUND_HALF_DOWN),
           currency: line_item.currency
         ).cents
       end
@@ -89,7 +89,7 @@ module Spree
         amount = line_item.included_tax_total / line_item.quantity
 
         Spree::Money.new(
-          BigDecimal.new(amount.to_s).round(2, BigDecimal::ROUND_HALF_UP),
+          BigDecimal(amount.to_s).round(2, BigDecimal::ROUND_HALF_UP),
           currency: line_item.currency
         ).cents
       end
@@ -106,7 +106,7 @@ module Spree
       end
 
       def round_to_two_places(amount)
-        BigDecimal.new(amount.to_s).round(2, BigDecimal::ROUND_HALF_UP)
+        BigDecimal(amount.to_s).round(2, BigDecimal::ROUND_HALF_UP)
       end
     end
   end
