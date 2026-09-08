@@ -61,6 +61,11 @@ describe Spree::PaymentMethod::AdyenHPP do
     include_examples "delayed gateway action"
   end
 
+  describe ".void" do
+    subject { gateway.void("9999", {}) }
+    include_examples "delayed gateway action"
+  end
+
   describe ".authorize" do
     subject { gateway.authorize 2000, hpp_source, currency: "EUR" }
     it { is_expected.to be_a ActiveMerchant::Billing::Response }
