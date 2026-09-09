@@ -14,7 +14,7 @@ RSpec.describe Spree::Adyen::NotificationProcessor do
     let!(:payment) do
       create(
         :payment,
-        amount: 23.99,
+        amount: payment_amount,
         state: payment_state,
         payment_method: hpp_gateway,
         order: order
@@ -38,6 +38,7 @@ RSpec.describe Spree::Adyen::NotificationProcessor do
     end
 
     let(:payment_state) { "pending" }
+    let(:payment_amount) { 23.99 }
     let(:success) { true }
 
     shared_examples "returns the notification" do
@@ -178,6 +179,97 @@ RSpec.describe Spree::Adyen::NotificationProcessor do
     context "when event is CAPTURE" do
       let(:event_type) { :capture }
       include_examples "completes payment"
+
+      context "and it was not successful" do
+        let(:success) { false }
+
+        include_examples "processed event"
+
+        it "marks the payment as a failure" do
+          expect { subject }.
+            to change { payment.reload.state }.
+            from("pending").
+            to("failed")
+        end
+
+        # Adyen sends a phantom failed CAPTURE after a successful one, with
+        # reason "Insufficient balance on payment". A duplicate 3DS redirect
+        # can knock the payment back to `pending` and fire that second capture,
+        # so the phantom failure can land while the payment is no longer
+        # `completed` and nothing is left to move it on.
+        context "and the payment was already captured" do
+          # The stranded orders this recovery is for are complete and fully paid
+          # for, so the payment covers the order total: the order updater that
+          # `complete!` re-runs is what then moves the order off `balance_due`
+          # and unblocks fulfillment. The order state is forced rather than
+          # walked through the checkout, both because `update_payment_state`
+          # only runs for a completed order and because completing the order
+          # would capture the payment this context needs left uncompleted.
+          let(:payment_amount) { order.total }
+
+          before do
+            payment.capture_events.create!(amount: payment.amount)
+            order.update_columns(
+              state: "complete",
+              completed_at: Time.current,
+              payment_state: "balance_due"
+            )
+          end
+
+          include_examples "processed event"
+
+          it "completes the payment instead of failing it" do
+            expect { subject }.
+              to change { payment.reload.state }.
+              from("pending").
+              to("completed")
+          end
+
+          it "moves the order to paid" do
+            expect { subject }.
+              to change { order.reload.payment_state }.
+              from("balance_due").
+              to("paid")
+          end
+
+          context "and the payment is stuck in processing" do
+            let(:payment_state) { "processing" }
+
+            it "completes the payment" do
+              expect { subject }.
+                to change { payment.reload.state }.
+                from("processing").
+                to("completed")
+            end
+
+            it "moves the order to paid" do
+              expect { subject }.
+                to change { order.reload.payment_state }.
+                from("balance_due").
+                to("paid")
+            end
+          end
+
+          context "and the payment is already complete" do
+            let(:payment_state) { "completed" }
+
+            include_examples "does nothing"
+          end
+        end
+
+        # A genuine partial capture failure must still be left alone.
+        context "and only part of the payment was captured" do
+          let(:payment_state) { "processing" }
+
+          before { payment.capture_events.create!(amount: payment.amount / 2) }
+
+          include_examples "processed event"
+
+          it "does not change the payment state" do
+            expect { subject }.to keep { payment.reload.state }
+          end
+        end
+      end
     end
 
     context "when event is CANCEL_OR_REFUND" do

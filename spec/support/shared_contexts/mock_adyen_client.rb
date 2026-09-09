@@ -50,6 +50,20 @@ shared_context "mock adyen client" do |success:, redirect: false, fault_message:
       ).and_return(api_response.call(successful_gateway_response))
 
       allow(double).
+        to receive(:authorise_payment_3dsecure).
+        with(
+          hash_including(
+            :reference,
+            :merchant_account,
+            :amount,
+            :billing_address,
+            :md,
+            :pa_response,
+            :browser_info,
+          ),
+      ).and_return(api_response.call(successful_gateway_response))
+
+      allow(double).
         to receive(:authorise_recurring_payment).
         with(
           hash_including(
