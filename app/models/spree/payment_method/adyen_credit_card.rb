@@ -63,11 +63,11 @@ module Spree
     # will cause the payment to be in the `failed` state. To counteract this,
     # we update the column without callbacks when we successfully authorize.
     def handle_3ds_response(payment, response)
-      if response.success?
-        payment.update_columns(state: 'pending', response_code: response.psp_reference)
-      else
-        raise Authorize3DSecureError
-      end
+      raise Authorize3DSecureError unless response.success?
+
+      return unless payment.state.in?(%w[failed checkout])
+
+      payment.update_columns(state: 'pending', response_code: response.psp_reference)
     end
 
     def perform_authorization(amount, card, gateway_options)
