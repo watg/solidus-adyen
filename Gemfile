@@ -49,7 +49,11 @@ group :development, :test do
     gem "solidus", github: "solidusio/solidus", branch: solidus_branch
   end
 
-  gem "solidus_auth_devise"
+  # solidus_auth_devise 2.6.1 ships a migration tagged [7.2], which Rails 6.1
+  # refuses to load, so generating the dummy app aborts with
+  # "ArgumentError: Unknown migration version "7.2"" before any spec runs. All
+  # three stores lock 2.5.8.
+  gem "solidus_auth_devise", "< 2.6"
 
   gem "pg"
   gem "sqlite3", "~> 1.4"
